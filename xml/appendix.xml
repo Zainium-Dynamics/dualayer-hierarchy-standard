@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appendix xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          version="5.0" xml:id="appendix">
+<title>Reference</title>
+
+<section xml:id="fhs-map">
+<title>FHS directories and their DHS locations</title>
+
+<informaltable>
+<tgroup cols="2">
+<thead><row><entry>FHS</entry><entry>DHS</entry></row></thead>
+<tbody>
+<row><entry><filename>/bin</filename>, <filename>/usr/bin</filename></entry><entry><filename>/overlayer/syshub/bin</filename></entry></row>
+<row><entry><filename>/sbin</filename>, <filename>/usr/sbin</filename></entry><entry><filename>/overlayer/syshub/sbin</filename></entry></row>
+<row><entry><filename>/lib</filename>, <filename>/lib64</filename>, <filename>/usr/lib</filename>, <filename>/usr/lib64</filename></entry><entry><filename>/overlayer/syshub/lib</filename> (libraries of the primary C library)</entry></row>
+<row><entry><filename>/usr/libexec</filename></entry><entry><filename>/overlayer/syshub/libexec</filename></entry></row>
+<row><entry><filename>/usr/include</filename></entry><entry><filename>/overlayer/syshub/include</filename></entry></row>
+<row><entry><filename>/usr/share</filename></entry><entry><filename>/overlayer/syshub/share</filename></entry></row>
+<row><entry><filename>/etc</filename></entry><entry><filename>/overlayer/syshub/etc</filename></entry></row>
+<row><entry><filename>/var</filename></entry><entry><filename>/overlayer/syshub/var</filename> (<filename>/var</filename> remains as a link)</entry></row>
+<row><entry><filename>/boot</filename></entry><entry><filename>/overlayer/zaisys/kernel</filename> and the boot loader directory</entry></row>
+<row><entry><filename>/lib/modules</filename></entry><entry><filename>/overlayer/syshub/drivers/modules</filename></entry></row>
+<row><entry><filename>/lib/firmware</filename></entry><entry><filename>/overlayer/syshub/drivers/hardware/firmwares</filename></entry></row>
+<row><entry><filename>/usr/local</filename>, <filename>/opt</filename></entry><entry><filename>/overlayer/zexlib/union</filename> (installed software, through the package manager)</entry></row>
+<row><entry>Loader in <filename>/lib</filename> or <filename>/lib64</filename></entry><entry>the C library's triplet directory (<xref linkend="libc-dirs"/>)</entry></row>
+<row><entry><filename>/home</filename>, <filename>/root</filename>, <filename>/tmp</filename>, <filename>/run</filename>, <filename>/dev</filename>, <filename>/proc</filename>, <filename>/sys</filename></entry><entry>unchanged</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para><filename>/srv</filename>, <filename>/mnt</filename> and
+<filename>/media</filename> are not defined by this version of the
+standard.</para>
+</section>
+
+<section xml:id="reference-implementation">
+<title>Reference implementation</title>
+
+<para>Zainium OS is the reference implementation of DHS. Its components
+map onto the standard as follows:</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead><row><entry>Requirement</entry><entry>Zainium OS component</entry></row></thead>
+<tbody>
+<row><entry>Composition at boot, staged upgrades, rollback</entry><entry><command>quantra-ramfs</command> (initramfs)</entry></row>
+<row><entry>Package management, receipts, base protection</entry><entry><command>zex</command></entry></row>
+<row><entry>Path resolution, loader redirection, toolchain selection</entry><entry><filename>libsys_resolver.so</filename>, <command>sys-resolver</command></entry></row>
+<row><entry>Protected paths</entry><entry><command>elevate</command>, <command>elevate-pam</command></entry></row>
+<row><entry>Primary C library and toolchain</entry><entry>musl, <command>gcc-musl</command>, <command>binutils</command></entry></row>
+<row><entry>Secondary C library and toolchain</entry><entry><command>glibc</command>, <command>glibc-dev</command>, <command>glibc-toolchain</command></entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>Sources: <link xlink:href="https://github.com/Zainium-Dynamics"/>.</para>
+</section>
+
+<section xml:id="glossary">
+<title>Glossary</title>
+
+<variablelist>
+<varlistentry><term>Layer</term><listitem><para>A directory tree under <filename>/overlayer</filename> with a single owner.</para></listitem></varlistentry>
+<varlistentry><term>Base</term><listitem><para>The layer <filename>/overlayer/syshub</filename> on disk: the complete operating system as shipped.</para></listitem></varlistentry>
+<varlistentry><term>Userland</term><listitem><para>The layer <filename>/overlayer/zexlib</filename>: software the user installs.</para></listitem></varlistentry>
+<varlistentry><term>System view</term><listitem><para>The OverlayFS mount at <filename>/overlayer/syshub</filename> that combines the base and the userland.</para></listitem></varlistentry>
+<varlistentry><term>Target triplet</term><listitem><para>The GNU name of a platform, <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-<replaceable>os</replaceable>-<replaceable>libc</replaceable>, used to name a C library's directory.</para></listitem></varlistentry>
+<varlistentry><term>Primary / secondary C library</term><listitem><para>The C library of the base (musl) and the optional second one (glibc).</para></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section xml:id="acknowledgements">
+<title>Acknowledgements</title>
+
+<para>DHS builds on three decades of work on the Filesystem Hierarchy
+Standard, now maintained by freedesktop.org
+(<link xlink:href="https://specifications.freedesktop.org/fhs/"/>). The
+build system of this document is derived from the FHS project's; see the
+file <filename>Attributions</filename> in the source repository.</para>
+</section>
+
+</appendix>

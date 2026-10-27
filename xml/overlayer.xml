@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+         version="5.0" xml:id="overlayer">
+<title>The <filename>/overlayer</filename> hierarchy</title>
+
+<section xml:id="overlayer-tree">
+<title>Overview</title>
+
+<para>On disk, <filename>/overlayer</filename> holds the layers side by side:</para>
+
+<programlisting>/overlayer/
+├── syshub/                      base layer: the complete operating system
+│   ├── bin/  sbin/  libexec/    programs
+│   ├── lib/                     shared libraries of the primary C library
+│   ├── include/                 headers of the primary C library
+│   ├── share/                   architecture-independent data
+│   ├── etc/                     system configuration
+│   ├── var/                     variable state of base services
+│   ├── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl/   musl: loader, libc, headers, toolchain
+│   ├── drivers/
+│   │   ├── modules/<replaceable>kernel</replaceable>/      kernel modules
+│   │   └── hardware/firmwares/  device firmware
+│   └── engine/services/         base package list, mirror list
+├── zexlib/                      userland layer
+│   ├── union/                   files of installed packages
+│   │   └── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu/   glibc, when installed
+│   ├── work/                    OverlayFS work directory
+│   ├── registry/                package receipts, index, caches, keys
+│   └── var/                     package data kept outside the union
+├── zaisys/                      boot layer (read-only)
+│   ├── kernel/                  kernels and initramfs images
+│   └── <replaceable>bootloader</replaceable>/            boot loader files
+├── agents/                      instructions for AI agents (optional)
+└── .syshub-pending/             a staged base upgrade (only while one waits)</programlisting>
+
+<para>In the running system <filename>/overlayer/syshub</filename> is the
+composed view of the base and the userland (<xref linkend="composition"/>);
+the other entries are visible at their own paths.</para>
+</section>
+
+<section xml:id="syshub">
+<title><filename>/overlayer/syshub</filename>: the base layer</title>
+
+<para>The base layer is the complete operating system as the vendor ships
+it: C library, toolchain, init system, services, desktop and drivers. It
+<emphasis role="strong">MUST</emphasis> boot and run with the userland layer
+absent. It <emphasis role="strong">MUST</emphasis> be changed only by a base
+upgrade (<xref linkend="upgrades"/>).</para>
+
+<variablelist>
+<varlistentry><term><filename>bin</filename>, <filename>sbin</filename></term>
+<listitem><para>Programs. <filename>sbin</filename> holds programs meant for
+the administrator. Both are on the default <envar>PATH</envar>.</para></listitem></varlistentry>
+
+<varlistentry><term><filename>libexec</filename></term>
+<listitem><para>Helper programs run by other programs, not by users.</para></listitem></varlistentry>
+
+<varlistentry><term><filename>lib</filename></term>
+<listitem><para>Shared and static libraries built for the primary C library,
+and the data directories that FHS places under <filename>/usr/lib</filename>
+(for example <filename>lib/systemd</filename>, <filename>lib/udev</filename>,
+<filename>lib/pkgconfig</filename>). A library built for any other C library
+<emphasis role="strong">MUST NOT</emphasis> be placed here.</para></listitem></varlistentry>
+
+<varlistentry><term><filename>include</filename></term>
+<listitem><para>Headers for the libraries in <filename>lib</filename>. The C
+library's own headers are in its triplet directory, not here.</para></listitem></varlistentry>
+
+<varlistentry><term><filename>share</filename></term>
+<listitem><para>Architecture-independent data: icons, locales, manual pages,
+desktop files, schemas.</para></listitem></varlistentry>
+
+<varlistentry><term><filename>etc</filename></term>
+<listitem><para>System configuration, including the user and group
+databases, name service, host names and the time zone link. Every C library
+on the system <emphasis role="strong">MUST</emphasis> read these files from
+here (<xref linkend="libc-shared-config"/>).</para></listitem></varlistentry>
+
+<varlistentry><term><filename>var</filename></term>
+<listitem><para>Variable data of base services: logs, caches, spool, the
+state of the service manager. <filename>/var</filename> points here.</para></listitem></varlistentry>
+
+<varlistentry><term><filename><replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl</filename></term>
+<listitem><para>The primary C library, musl, with its loader, headers and
+cross-named toolchain (<xref linkend="libc"/>).</para></listitem></varlistentry>
+
+<varlistentry><term><filename>drivers/modules/<replaceable>kernel</replaceable></filename></term>
+<listitem><para>Kernel modules of each installed kernel (FHS:
+<filename>/lib/modules</filename>).</para></listitem></varlistentry>
+
+<varlistentry><term><filename>drivers/hardware/firmwares</filename></term>
+<listitem><para>Firmware loaded by drivers (FHS:
+<filename>/lib/firmware</filename>).</para></listitem></varlistentry>
+
+<varlistentry><term><filename>engine/services</filename></term>
+<listitem><para>The list of base packages with their versions, and the list
+of package mirrors.</para></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section xml:id="zexlib">
+<title><filename>/overlayer/zexlib</filename>: the userland layer</title>
+
+<para>The userland layer holds everything the user installs on top of the
+base. It is changed only by the package manager.</para>
+
+<variablelist>
+<varlistentry><term><filename>union</filename></term>
+<listitem><para>The files of installed packages, in the same layout as the
+base (<filename>bin</filename>, <filename>lib</filename>,
+<filename>etc</filename>, <filename>share</filename>, …). This directory is
+the upper layer of the system view, so its files appear in
+<filename>/overlayer/syshub</filename>. The secondary C library, glibc,
+lives in its triplet directory here (<xref linkend="libc"/>).</para></listitem></varlistentry>
+
+<varlistentry><term><filename>work</filename></term>
+<listitem><para>The OverlayFS work directory belonging to
+<filename>union</filename>. It <emphasis role="strong">MUST</emphasis> be on
+the same filesystem as <filename>union</filename> and
+<emphasis role="strong">MUST NOT</emphasis> be used for anything else.</para></listitem></varlistentry>
+
+<varlistentry><term><filename>registry</filename></term>
+<listitem><para>One receipt per installed package listing every file it
+installed, the package index, download caches and trusted signing
+keys.</para></listitem></varlistentry>
+
+<varlistentry><term><filename>var</filename></term>
+<listitem><para>Package data that must stay outside the composed view, for
+example a system-wide Flatpak installation.</para></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section xml:id="zaisys">
+<title><filename>/overlayer/zaisys</filename>: the boot layer</title>
+
+<para>The boot layer holds what is needed before the root is mounted:
+kernels, initramfs images and the boot loader (FHS:
+<filename>/boot</filename>). It is mounted read-only in the running system.
+On firmware that can read only FAT filesystems, the installer
+<emphasis role="strong">MAY</emphasis> copy the kernel and initramfs to the
+EFI system partition; the copies in <filename>zaisys</filename> remain the
+reference.</para>
+</section>
+
+<section xml:id="agents">
+<title><filename>/overlayer/agents</filename></title>
+
+<para>An optional directory with instructions, skills and policies for AI
+coding agents working on the system. Agents <emphasis role="strong">SHOULD</emphasis>
+read it before changing the system.</para>
+</section>
+
+<section xml:id="pending">
+<title><filename>/overlayer/.syshub-pending</filename></title>
+
+<para>A base upgrade that has been downloaded and verified but not yet
+applied. It exists only while an upgrade waits for the next boot, is
+writable only by the package manager running as root, and
+<emphasis role="strong">MUST</emphasis> be applied or discarded before the
+system view is composed.</para>
+</section>
+
+<section xml:id="docs">
+<title>Documentation at the top of the hierarchy</title>
+
+<para>An implementation <emphasis role="strong">SHOULD</emphasis> place a
+short description of the system, its architecture and its package manager
+directly in <filename>/overlayer</filename>, so that the layout explains
+itself to users and agents.</para>
+
+<note><title>Implementation note</title>
+<para>Zainium OS ships <filename>/overlayer/README.zainium</filename>,
+<filename>/overlayer/architecture.md</filename> and
+<filename>/overlayer/zex.md</filename>.</para></note>
+</section>
+
+</chapter>

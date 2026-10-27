@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+         version="5.0" xml:id="compat">
+<title>Running software built for FHS systems</title>
+
+<para>Most software assumes FHS paths: scripts start with
+<literal>#!/usr/bin/env</literal>, programs open
+<filename>/etc/passwd</filename> or <filename>/usr/share/…</filename>, and
+binaries built elsewhere name <filename>/lib64/ld-linux-x86-64.so.2</filename>
+as their loader. A DHS system runs such software in two ways: packages are
+adapted when they are installed, and paths that are still FHS-shaped are
+resolved when they are used.</para>
+
+<section xml:id="path-resolution">
+<title>Path resolution</title>
+
+<para>An implementation <emphasis role="strong">SHOULD</emphasis> provide a
+path resolver that takes effect when a program opens, executes or inspects
+an FHS path that does not exist. The resolver applies only to paths whose
+first component is one of <filename>bin</filename>,
+<filename>sbin</filename>, <filename>lib</filename>,
+<filename>usr</filename>, <filename>opt</filename>,
+<filename>var</filename>, <filename>etc</filename> or
+<filename>boot</filename>; <filename>/home</filename>,
+<filename>/tmp</filename> and the virtual filesystems are never changed. It
+rewrites the path as follows and uses the first candidate that
+exists:</para>
+
+<orderedlist>
+<listitem><para>Remove a leading <filename>/usr/local/</filename> or
+<filename>/usr/</filename>.</para></listitem>
+<listitem><para>Replace <filename>lib64</filename> with
+<filename>lib</filename>.</para></listitem>
+<listitem><para>Map <filename>lib/modules</filename> to
+<filename>drivers/modules</filename>, <filename>lib/firmware</filename> to
+<filename>drivers/hardware/firmwares</filename> and
+<filename>boot</filename> to <filename>kernel</filename>.</para></listitem>
+<listitem><para>Try the result under, in order,
+<filename>/overlayer/syshub</filename>, the musl directory,
+<filename>/overlayer/zexlib/union</filename> and
+<filename>/overlayer/zaisys</filename>.</para></listitem>
+</orderedlist>
+
+<para>For example, <filename>/usr/bin/env</filename> becomes
+<filename>/overlayer/syshub/bin/env</filename>,
+<filename>/etc/passwd</filename> becomes
+<filename>/overlayer/syshub/etc/passwd</filename> and
+<filename>/usr/include/zlib.h</filename> becomes
+<filename>/overlayer/syshub/include/zlib.h</filename>.</para>
+
+<para>The resolver <emphasis role="strong">MUST</emphasis> work in programs
+of both C libraries and therefore <emphasis role="strong">SHOULD NOT</emphasis>
+depend on either C library itself.</para>
+
+<note><title>Implementation note</title>
+<para>Zainium OS implements the resolver as
+<filename>libsys_resolver.so</filename>, preloaded into service manager
+units, login shells and PAM sessions. A preloaded library cannot act in
+statically linked or setuid programs, because the loader does not preload
+into those.</para></note>
+</section>
+
+<section xml:id="loader-redirect">
+<title>Loader redirection</title>
+
+<para>When a program is executed whose interpreter path does not exist — for
+example <filename>/lib64/ld-linux-x86-64.so.2</filename> or
+<filename>/lib/ld-musl-x86_64.so.1</filename> — the implementation
+<emphasis role="strong">SHOULD</emphasis> start it with the installed
+loader of the same C library, passing the program as an argument and
+keeping its name as <literal>argv[0]</literal>. If the matching C library is
+not installed, the program fails as it would on any system without that
+library.</para>
+</section>
+
+<section xml:id="foreign-packages">
+<title>Packages from other distributions</title>
+
+<para>A package manager that installs packages built for other
+distributions <emphasis role="strong">SHOULD</emphasis> adapt them when
+installing: set the loader and library path of musl programs to DHS paths,
+rewrite <filename>pkg-config</filename> prefixes and script interpreters
+(<literal>#!</literal> lines) to DHS paths, and place the files under
+<filename>/overlayer/zexlib/union</filename>. Programs linked against glibc
+are not changed (<xref linkend="libc-packages"/>).</para>
+</section>
+
+</chapter>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+         version="5.0" xml:id="root">
+<title>The root directory</title>
+
+<section xml:id="root-entries">
+<title>Required entries</title>
+
+<para>The root directory of a DHS system <emphasis role="strong">MUST</emphasis>
+contain the following entries and <emphasis role="strong">SHOULD NOT</emphasis>
+contain others.</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead><row><entry>Entry</entry><entry>Contents</entry></row></thead>
+<tbody>
+<row><entry><filename>/overlayer</filename></entry><entry>The operating system: all layers (<xref linkend="overlayer"/>).</entry></row>
+<row><entry><filename>/home</filename></entry><entry>User home directories.</entry></row>
+<row><entry><filename>/root</filename></entry><entry>The home directory of the root user.</entry></row>
+<row><entry><filename>/dev</filename></entry><entry>Device files (devtmpfs).</entry></row>
+<row><entry><filename>/proc</filename></entry><entry>Process information (procfs).</entry></row>
+<row><entry><filename>/sys</filename></entry><entry>Kernel and device information (sysfs).</entry></row>
+<row><entry><filename>/run</filename></entry><entry>Run-time state since boot (tmpfs).</entry></row>
+<row><entry><filename>/tmp</filename></entry><entry>Temporary files.</entry></row>
+<row><entry><filename>/var</filename></entry><entry>A symbolic link to <filename>/overlayer/syshub/var</filename>, kept because the kernel interfaces and service managers of today expect <filename>/var</filename> to exist. It is the only symbolic link at the root.</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+</section>
+
+<section xml:id="root-forbidden">
+<title>Entries that must not exist</title>
+
+<para>The following FHS directories <emphasis role="strong">MUST NOT</emphasis>
+exist at the root, neither as directories nor as symbolic links:
+<filename>/usr</filename>, <filename>/bin</filename>, <filename>/sbin</filename>,
+<filename>/lib</filename>, <filename>/lib32</filename>, <filename>/lib64</filename>,
+<filename>/libx32</filename>, <filename>/etc</filename> and <filename>/boot</filename>.
+Their contents live in the layers; <xref linkend="fhs-map"/> lists where.</para>
+
+<para>Keeping these names absent is what makes the layers enforceable: a
+program cannot write into <filename>/usr/lib</filename> and thereby into the
+base, because there is no such directory to write into.</para>
+</section>
+
+</chapter>

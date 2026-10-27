@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+         version="5.0" xml:id="packages">
+<title>Package management</title>
+
+<para>DHS does not prescribe a package format. Any package manager that
+installs into a DHS system <emphasis role="strong">MUST</emphasis> keep the
+guarantees of this chapter.</para>
+
+<section xml:id="base-protection">
+<title>The base is never overwritten</title>
+
+<para>A userland package <emphasis role="strong">MUST NOT</emphasis> place a
+file at a path the base already provides. Such files are left out of the
+installation. This keeps the base intact under the overlay and makes the
+userland removable.</para>
+</section>
+
+<section xml:id="receipts">
+<title>Receipts</title>
+
+<para>For every installed package the package manager
+<emphasis role="strong">MUST</emphasis> record a receipt in
+<filename>/overlayer/zexlib/registry</filename> that lists each file it
+installed. Removing the package <emphasis role="strong">MUST</emphasis>
+delete exactly those files.</para>
+</section>
+
+<section xml:id="dependencies">
+<title>Libraries</title>
+
+<para>Before installing a package, the package manager
+<emphasis role="strong">SHOULD</emphasis> check that every shared library
+its programs need is provided by the system or by a package being installed
+with it, and ask the user before installing otherwise.</para>
+</section>
+
+<section xml:id="upgrades">
+<title>Base upgrades</title>
+
+<orderedlist>
+<listitem><para>New base packages are downloaded and verified while the
+system runs, and staged in <filename>/overlayer/.syshub-pending</filename>.
+The staging directory is writable only by the package manager running as
+root and is protected against change while it waits.</para></listitem>
+<listitem><para>At the next boot the initramfs applies the staged upgrade to
+<filename>/overlayer/syshub</filename> before the system view is composed
+(<xref linkend="boot-order"/>).</para></listitem>
+<listitem><para>The previous state <emphasis role="strong">SHOULD</emphasis>
+be kept so that the last upgrade can be rolled back from the boot
+menu or the kernel command line.</para></listitem>
+</orderedlist>
+</section>
+
+<section xml:id="privileges">
+<title>Protected paths</title>
+
+<para>The base and boot layers <emphasis role="strong">SHOULD</emphasis> be
+protected against accidental change even by the administrator: the
+privilege tool <emphasis role="strong">SHOULD</emphasis> refuse destructive
+commands (removing, moving, overwriting, shredding) on
+<filename>/overlayer/syshub</filename>, <filename>/overlayer/zaisys</filename>,
+<filename>/overlayer/.syshub-pending</filename> and
+<filename>/overlayer</filename> itself. The base changes only through base
+upgrades.</para>
+
+<note><title>Implementation note</title>
+<para>Zainium OS replaces <command>sudo</command> with
+<command>elevate</command>, which refuses <command>rm</command>,
+<command>rmdir</command>, <command>mv</command>, <command>cp</command>,
+<command>rsync</command>, <command>shred</command> and
+<command>unlink</command> on those paths.</para></note>
+</section>
+
+</chapter>

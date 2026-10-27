@@ -1,0 +1,185 @@
+/* Dualayer Hierarchy Standard — HTML rendering of the DocBook sources. */
+
+:root {
+  --bg: #fbfbfa;
+  --fg: #141414;
+  --muted: #5f5f5c;
+  --rule: #e2e1dd;
+  --panel: #f2f1ee;
+  --code-bg: #f0efeb;
+  --accent: #1f5f8b;
+  --base: #2f6b3a;
+  --user: #8a5a12;
+  --note: #eef3f7;
+  --serif: "Iowan Old Style", "Charter", "Georgia", serif;
+  --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", "Fira Code", "DejaVu Sans Mono", ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111213;
+    --fg: #e8e7e3;
+    --muted: #9b9a95;
+    --rule: #2a2b2d;
+    --panel: #18191b;
+    --code-bg: #1b1c1e;
+    --accent: #7fb6e0;
+    --base: #8fcf99;
+    --user: #e6b866;
+    --note: #16202a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--bg); }
+
+body {
+  margin: 0 auto;
+  max-width: 50rem;
+  padding: 3rem 1.25rem 5rem;
+  background: var(--bg);
+  color: var(--fg);
+  font: 1.0625rem/1.65 var(--serif);
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--sans);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  margin: 2.2em 0 0.6em;
+}
+
+/* Title page */
+div.book > div.titlepage { padding-bottom: 2rem; border-bottom: 1px solid var(--rule); }
+div.book > div.titlepage h1.title {
+  font-size: 2.6rem;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.03em;
+}
+div.titlepage p.releaseinfo,
+div.titlepage p.pubdate { font-family: var(--sans); color: var(--muted); margin: 0.2rem 0; }
+div.titlepage div.authorgroup,
+div.titlepage div.author h3 { font-family: var(--sans); font-size: 0.95rem; font-weight: 500; color: var(--muted); margin: 0.2rem 0; }
+div.titlepage p.copyright { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); margin: 0.1rem 0; }
+div.legalnotice { font-size: 0.85rem; color: var(--muted); margin-top: 1.25rem; }
+div.abstract {
+  margin: 2rem 0 0;
+  padding: 1rem 1.25rem;
+  background: var(--panel);
+  border-left: 3px solid var(--fg);
+  border-radius: 0 6px 6px 0;
+}
+div.abstract p.title { display: none; }
+
+/* Table of contents */
+div.toc { margin: 2rem 0; font-family: var(--sans); font-size: 0.95rem; }
+div.toc p b { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; color: var(--muted); }
+div.toc dl { margin: 0.25rem 0; }
+div.toc dt { margin: 0.2rem 0; }
+div.toc dd { margin-left: 1.4rem; }
+
+/* Chapters and sections */
+div.chapter > div.titlepage h2.title,
+div.appendix > div.titlepage h2.title {
+  font-size: 1.85rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+}
+div.section h2.title { font-size: 1.4rem; }
+div.section h3.title { font-size: 1.15rem; }
+div.section h4.title { font-size: 1rem; color: var(--muted); }
+
+p { margin: 0.75em 0; }
+
+/* Code, paths and listings */
+code, tt, .filename, .literal, .command, .option, .envar, .replaceable {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+code.filename, code.literal, code.command, code.envar, code.option {
+  background: var(--code-bg);
+  padding: 0.08em 0.3em;
+  border-radius: 4px;
+}
+em.replaceable code, .replaceable { font-style: italic; color: var(--user); }
+
+pre.programlisting, pre.screen, pre.literallayout {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  overflow-x: auto;
+}
+
+/* Tables */
+div.table, div.informaltable { margin: 1.25rem 0; overflow-x: auto; }
+div.table p.title { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--rule);
+}
+th { font-weight: 600; background: var(--panel); }
+table[border], table[border] th, table[border] td { border-left: 0; border-right: 0; border-top: 0; }
+table[border] { border-top: 1px solid var(--rule); }
+td code.filename { white-space: nowrap; }
+
+/* Definition lists (directory entries) */
+div.variablelist dl dt { margin-top: 0.9rem; font-family: var(--mono); font-size: 0.9rem; }
+div.variablelist dl dd { margin: 0.2rem 0 0 1.5rem; }
+div.variablelist dl dd p { margin: 0.2rem 0; }
+
+/* Notes and requirement callouts */
+div.note, div.important, div.tip, div.warning {
+  margin: 1.25rem 0;
+  padding: 0.8rem 1.1rem;
+  background: var(--note);
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+}
+div.note h3.title, div.important h3.title, div.tip h3.title, div.warning h3.title {
+  margin: 0 0 0.3rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+div.important { border-left: 3px solid var(--base); }
+div.warning { border-left: 3px solid var(--user); }
+
+/* Requirement keywords (RFC 2119) */
+.emphasis.strong, strong { font-family: var(--sans); font-weight: 650; }
+
+/* Page navigation for the multi-page build */
+div.navheader, div.navfooter { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); }
+div.navheader table, div.navfooter table { font-size: 0.85rem; }
+div.navheader th, div.navheader td, div.navfooter th, div.navfooter td { border: 0; background: none; padding: 0.3rem 0; }
+div.navheader th { font-weight: 600; }
+div.navheader hr, div.navfooter hr { border: 0; border-top: 1px solid var(--rule); }
+
+@media (max-width: 40rem) {
+  body { padding: 1.5rem 1rem 3rem; font-size: 1rem; }
+  div.book > div.titlepage h1.title { font-size: 2rem; }
+}
+
+@media print {
+  body { max-width: none; background: #fff; color: #000; }
+  a { color: inherit; }
+}

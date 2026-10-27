@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+         version="5.0" xml:id="composition">
+<title>Composing the system view</title>
+
+<section xml:id="boot-order">
+<title>Order at boot</title>
+
+<para>The initramfs <emphasis role="strong">MUST</emphasis> prepare the
+system in this order:</para>
+
+<orderedlist>
+<listitem><para>Mount the root filesystem (a disk partition, or a read-only
+image on live media).</para></listitem>
+<listitem><para>If <filename>/overlayer/.syshub-pending</filename> holds an
+upgrade, apply it to <filename>/overlayer/syshub</filename> on disk. If a
+rollback was requested, undo the last applied upgrade instead. Nothing may
+use the base before this step is complete.</para></listitem>
+<listitem><para>Mount the system view at <filename>/overlayer/syshub</filename>
+with OverlayFS, using:
+<itemizedlist>
+<listitem><para>lower layers, highest first: <filename>overlayer/syshub</filename>
+(the base) and <filename>overlayer/zaisys</filename>;</para></listitem>
+<listitem><para>upper layer: <filename>overlayer/zexlib/union</filename>;</para></listitem>
+<listitem><para>work directory: <filename>overlayer/zexlib/work</filename>.</para></listitem>
+</itemizedlist></para></listitem>
+<listitem><para>Mount <filename>zaisys</filename> (read-only),
+<filename>zexlib</filename>, <filename>agents</filename> and the other
+entries of <filename>/overlayer</filename> at their own paths, and
+<filename>/home</filename> and <filename>/root</filename> from the
+disk.</para></listitem>
+<listitem><para>Switch to the new root and start the init system.</para></listitem>
+</orderedlist>
+</section>
+
+<section xml:id="precedence">
+<title>Precedence</title>
+
+<para>Because the userland is the upper layer, a file it holds at the same
+path as a base file would hide the base file. The package manager therefore
+<emphasis role="strong">MUST NOT</emphasis> install a file at a path the base
+already provides (<xref linkend="base-protection"/>). Configuration that an
+administrator edits in <filename>/overlayer/syshub/etc</filename> is written
+to the upper layer by OverlayFS and survives base upgrades.</para>
+</section>
+
+<section xml:id="rescue">
+<title>Rescue</title>
+
+<para>An implementation <emphasis role="strong">SHOULD</emphasis> provide a
+kernel command line option that boots the base without the userland layer.
+Because the base stands on its own, this always yields a working
+system.</para>
+
+<note><title>Implementation note</title>
+<para>Zainium OS uses <literal>zainium.overlay=off</literal>, and
+<literal>rd.break=pre-mount|pre-overlay|pre-pivot</literal> to stop in a
+shell at a given step.</para></note>
+</section>
+
+<section xml:id="live">
+<title>Live media and installed systems</title>
+
+<informaltable>
+<tgroup cols="3">
+<thead><row><entry></entry><entry>Live media</entry><entry>Installed system</entry></row></thead>
+<tbody>
+<row><entry>Root</entry><entry>read-only compressed image in <filename>zaisys</filename></entry><entry>disk partition</entry></row>
+<row><entry>Userland layer</entry><entry>in memory, lost at reboot</entry><entry>on disk</entry></row>
+<row><entry><filename>/home</filename>, <filename>/root</filename></entry><entry>in memory over the image</entry><entry>on disk</entry></row>
+<row><entry>Base upgrades</entry><entry>not available</entry><entry>staged, applied at the next boot</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+</section>
+
+</chapter>

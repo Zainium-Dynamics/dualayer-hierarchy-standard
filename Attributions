@@ -1,0 +1,19 @@
+Dualayer Hierarchy Standard — attributions
+
+The text of the standard (xml/*.xml) is original work of the Dualayer
+Hierarchy Standard Project contributors, licensed under CC BY-SA 4.0
+(see LICENSE).
+
+The build system follows the Filesystem Hierarchy Standard project:
+  https://gitlab.freedesktop.org/FHS/fhs-spec
+The following files come from it, unchanged or adapted:
+  Makefile (rewritten for xsltproc, structure kept)
+  util/files-from-rules.xsl
+  util/update-xmlfiles.py
+  docbook/schemas/   (DocBook 5 RELAX NG schemas, OASIS)
+  docbook/xsl/       (DocBook XSL stylesheets, see docbook/xsl/docsrc/license.xml)
+docbook/dhs.css, docbook/dhs-chunk.xsl and docbook/docbook-html-utf8.xsl
+are new.
+
+Thanks to the editors and contributors of the FHS, whose work since
+1994 this standard builds on.

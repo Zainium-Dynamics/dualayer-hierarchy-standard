@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+         version="5.0" xml:id="principles">
+<title>Design principles</title>
+
+<para>The requirements in the following chapters follow from these
+principles.</para>
+
+<variablelist>
+<varlistentry>
+<term>One root for the operating system</term>
+<listitem><para>Everything the operating system ships or installs lives under
+<filename>/overlayer</filename>. The root directory holds only that
+directory, user data and the virtual filesystems the kernel provides.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Every layer has one owner</term>
+<listitem><para>The base layer is changed only by base upgrades, the
+userland layer only by the package manager, the boot layer only by base
+upgrades and the installer. No layer writes into another.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>The base stands on its own</term>
+<listitem><para>The base layer is a complete, bootable system. Deleting the
+userland layer leaves a working system, never a broken one.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Compose, do not mix</term>
+<listitem><para>Layers are combined into one view by stacking them
+(OverlayFS), not by copying files of one layer into another. Each file on
+disk belongs to exactly one layer.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Each C library in its own directory</term>
+<listitem><para>A C library, its loader, its headers and its toolchain live
+together in a directory named after the library's target triplet. Two C
+libraries never share a <filename>lib</filename> or
+<filename>include</filename> directory.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>No compatibility directories at the root</term>
+<listitem><para>There is no <filename>/usr</filename>,
+<filename>/lib64</filename> or <filename>/bin</filename>, not even as a
+symbolic link. Software that names those paths is served by path
+resolution at run time instead.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>Base upgrades are atomic</term>
+<listitem><para>A new base is prepared while the system runs and put in
+place at the next boot, before anything uses it. The running system never
+sees a half-upgraded base.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</chapter>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         version="5.0" xml:id="intro">
+<title>Introduction</title>
+
+<section xml:id="purpose">
+<title>Purpose</title>
+
+<para>The Filesystem Hierarchy Standard (FHS) describes a single, shared
+tree: the vendor's programs, locally installed programs and their libraries
+are placed together under <filename>/usr</filename>, and one C library
+serves every program on the system. That model has served UNIX-like systems
+for three decades, but it makes three things hard:</para>
+
+<itemizedlist>
+<listitem><para><emphasis>Separating what the vendor ships from what the
+user installs.</emphasis> When both write into <filename>/usr/bin</filename>
+and <filename>/usr/lib</filename>, an upgrade of the base system and an
+install of third-party software can replace each other's files.</para></listitem>
+<listitem><para><emphasis>Upgrading the base as one unit.</emphasis> A base
+that is spread across the shared tree is upgraded file by file, while it is
+running.</para></listitem>
+<listitem><para><emphasis>Having more than one C library.</emphasis> The
+paths <filename>/lib</filename>, <filename>/lib64</filename>,
+<filename>/usr/include</filename> and the dynamic loader location assume a
+single C library. Installing a second one into the same directories mixes
+headers, loaders and runtime libraries of two incompatible ABIs.</para></listitem>
+</itemizedlist>
+
+<para>The Dualayer Hierarchy Standard (DHS) solves these by giving each part
+of the system its own <emphasis>layer</emphasis> — a directory tree with a
+single owner — and by giving each C library its own directory, named after
+its target triplet. The running system sees the layers as one tree, composed
+at boot with OverlayFS.</para>
+</section>
+
+<section xml:id="name">
+<title>The name</title>
+
+<para><emphasis>Dualayer</emphasis> joins <emphasis>dual</emphasis> and
+<emphasis>layer</emphasis>: the system is built from layers, and two C
+libraries — musl and glibc — live in it side by side. The standard is
+abbreviated DHS.</para>
+</section>
+
+<section xml:id="scope">
+<title>Scope</title>
+
+<para>This standard specifies:</para>
+<itemizedlist>
+<listitem><para>the entries allowed at the root of the filesystem;</para></listitem>
+<listitem><para>the layers under <filename>/overlayer</filename>, what each
+contains and who may change it;</para></listitem>
+<listitem><para>how the layers are composed into the system view at boot;</para></listitem>
+<listitem><para>where musl and glibc are installed and how programs linked
+against each find their loader, libraries, headers and compilers;</para></listitem>
+<listitem><para>how software written for FHS systems is run;</para></listitem>
+<listitem><para>the guarantees a package manager has to keep.</para></listitem>
+</itemizedlist>
+
+<para>It does not specify the contents of configuration files, the init
+system, the desktop, or the package format.</para>
+</section>
+
+<section xml:id="conventions">
+<title>Conventions</title>
+
+<para>The key words <emphasis role="strong">MUST</emphasis>,
+<emphasis role="strong">MUST NOT</emphasis>, <emphasis role="strong">SHOULD</emphasis>,
+<emphasis role="strong">SHOULD NOT</emphasis> and <emphasis role="strong">MAY</emphasis>
+are to be interpreted as described in RFC 2119.</para>
+
+<para>In paths, <replaceable>arch</replaceable> is the CPU architecture as it
+appears in a GNU target triplet (for example <literal>x86_64</literal> or
+<literal>aarch64</literal>) and <replaceable>vendor</replaceable> is the
+vendor field of the triplet chosen by the implementation (for example
+<literal>zainium</literal>). A path written as
+<filename>/overlayer/syshub/bin</filename> names the directory in the
+composed system view unless the text says <quote>on disk</quote>.</para>
+
+<para>Notes marked <emphasis>Implementation note</emphasis> describe how the
+reference implementation, Zainium OS, meets a requirement. They are
+informative, not normative.</para>
+</section>
+
+<section xml:id="relation-fhs">
+<title>Relationship to the FHS</title>
+
+<para>DHS is not an extension of the FHS: a DHS system has no
+<filename>/usr</filename>, <filename>/bin</filename>, <filename>/lib</filename>
+or <filename>/etc</filename> at its root. Programs built for FHS systems
+still run, because their FHS paths are resolved to DHS paths when they are
+used (<xref linkend="compat"/>). <xref linkend="fhs-map"/> lists where each
+FHS directory lives under DHS.</para>
+</section>
+
+</chapter>

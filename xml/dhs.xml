@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<book xmlns="http://docbook.org/ns/docbook"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      version="5.0"
+      xml:lang="en">
+
+<info>
+<title>Dualayer Hierarchy Standard</title>
+<subtitle>A layered filesystem hierarchy in which musl and GNU libc run side by side</subtitle>
+<releaseinfo>Version 1.0</releaseinfo>
+<pubdate>October 28, 2026</pubdate>
+
+<authorgroup>
+  <author><orgname>Dualayer Hierarchy Standard Project</orgname></author>
+  <author><orgname>Zainium Dynamics</orgname></author>
+</authorgroup>
+<copyright><year>2026</year><holder>Dualayer Hierarchy Standard Project Contributors</holder></copyright>
+
+<legalnotice>
+<para>This standard is licensed under the Creative Commons
+Attribution-ShareAlike 4.0 International license (CC BY-SA 4.0). You may
+copy, adapt and redistribute it, including in commercial products, provided
+that you credit the Dualayer Hierarchy Standard Project and distribute
+derived versions under the same license. The full license text is in the
+file <filename>LICENSE</filename> of the source repository and at
+<link xlink:href="https://creativecommons.org/licenses/by-sa/4.0/"/>.</para>
+
+<para>All trademarks are the property of their owners. Use of a term in this
+document should not be regarded as affecting the validity of any trademark
+or service mark.</para>
+</legalnotice>
+
+<abstract>
+<para>The Dualayer Hierarchy Standard (DHS) defines where the files of an
+operating system live when the system is assembled from separate layers: a
+self-sufficient base, a layer of installed software, and a boot layer. It
+also defines how two C libraries — musl and the GNU C Library (glibc) — are
+installed on the same system, each in a directory of its own, so that
+programs linked against either one run without conflicting with the other.
+The standard is written for operating system vendors, package managers,
+toolchain authors and application developers.</para>
+</abstract>
+</info>
+
+<xi:include href="intro.xml" parse="xml" />
+<xi:include href="principles.xml" parse="xml" />
+<xi:include href="root.xml" parse="xml" />
+<xi:include href="overlayer.xml" parse="xml" />
+<xi:include href="composition.xml" parse="xml" />
+<xi:include href="libc.xml" parse="xml" />
+<xi:include href="compat.xml" parse="xml" />
+<xi:include href="packages.xml" parse="xml" />
+<xi:include href="appendix.xml" parse="xml" />
+
+</book>

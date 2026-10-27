@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is read by the Makefile to determine the set of
+     XML files that make up the DHS document.  It is also used by
+     editors to locate the schema for each XML file. -->
+<locatingRules xmlns="http://thaiopensource.com/ns/locating-rules/1.0">
+  <uri resource="appendix.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="compat.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="composition.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="dhs.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="intro.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="libc.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="overlayer.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="packages.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="principles.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+  <uri resource="root.xml" uri="../docbook/schemas/rng/docbookxi.rnc"/>
+</locatingRules>
