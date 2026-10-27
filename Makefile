@@ -4,7 +4,7 @@
 
 XSLTPROC = xsltproc
 XMLLINT  = xmllint
-FOP      = fop
+WEASYPRINT = weasyprint
 PYTHON3  = python3
 
 BUILDDIR = build
@@ -14,7 +14,6 @@ XMLFILES = $(wildcard xml/*.xml)
 
 DOCBOOK_XSL_SHTML = docbook/docbook-html-utf8.xsl
 DOCBOOK_XSL_MHTML = docbook/dhs-chunk.xsl
-DOCBOOK_XSL_FO    = docbook/xsl/fo/docbook.xsl
 DOCBOOK_RNG       = docbook/schemas/rng/docbookxi.rng
 DOCBOOK_RNC       = docbook/schemas/rng/docbookxi.rnc
 
@@ -45,14 +44,9 @@ $(OUTDIR)/%/dhs.css: docbook/dhs.css
 	mkdir -p $(@D)
 	cp $< $@
 
-$(BUILDDIR)/dhs.fo: $(XMLFILES)
-	mkdir -p $(@D)
-	$(XSLTPROC) --xinclude --stringparam section.autolabel 1 \
-	    --stringparam paper.type A4 -o $@ $(DOCBOOK_XSL_FO) $(XMLBOOK)
-
-$(OUTDIR)/dhs.pdf: $(BUILDDIR)/dhs.fo
-	mkdir -p $(@D)
-	$(FOP) $< -pdf $@
+# The PDF is the single-page HTML printed with WeasyPrint, so it keeps the same design.
+$(OUTDIR)/dhs.pdf: $(OUTDIR)/single/index.html $(OUTDIR)/single/dhs.css
+	$(WEASYPRINT) $< $@
 
 # Validate every source file against the DocBook 5 RELAX NG schema.
 valid:

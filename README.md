@@ -127,7 +127,7 @@ Rendered HTML is attached to every CI run (artifact `dhs-html`).
 make valid      # validate against the DocBook 5 schema (xmllint)
 make html       # one page per chapter: build/dhs/html/
 make single     # one page: build/dhs/single/index.html
-make pdf        # needs Apache FOP
+make pdf        # build/dhs/dhs.pdf, needs WeasyPrint
 ```
 
 Requirements: `make`, `xsltproc`, `xmllint`. The DocBook schemas and XSL
