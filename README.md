@@ -34,16 +34,15 @@ directory of its own.
 ```text
 /
 ├── overlayer/
-│   ├── syshub/                      base: the complete OS (composed view at run time)
+│   ├── syshub/                      system layer: the base OS (composed view at run time)
 │   │   ├── bin/ sbin/ libexec/ lib/ include/ share/ etc/ var/
-│   │   ├── x86_64-<vendor>-linux-musl/   musl: loader, libc, headers, toolchain
-│   │   ├── drivers/modules/  drivers/hardware/firmwares/
-│   │   └── engine/services/
-│   ├── zexlib/                      userland: software the user installs
+│   │   ├── x86_64-<vendor>-linux-musl/   primary C library: loader, libc, headers, toolchain
+│   │   └── drivers/modules/  drivers/hardware/firmwares/
+│   ├── userland/                    userland layer: software the user installs
 │   │   ├── union/                   files of installed packages (upper layer)
-│   │   │   └── x86_64-<vendor>-linux-gnu/  glibc, when installed
+│   │   │   └── x86_64-<vendor>-linux-gnu/  secondary C library, when installed as a package
 │   │   └── work/  registry/  var/
-│   ├── zaisys/                      boot: kernels, initramfs, boot loader (read-only)
+│   ├── ignition/                    ignition layer: kernels, initramfs, boot loader (read-only)
 │   ├── agents/                      instructions for AI agents (optional)
 │   └── .syshub-pending/             a staged base upgrade
 ├── home/  root/  tmp/  run/  dev/  proc/  sys/
@@ -53,47 +52,66 @@ directory of its own.
 There is no `/usr`, `/bin`, `/sbin`, `/lib`, `/lib64`, `/etc` or `/boot` at the
 root — not even as symbolic links.
 
-| Layer | Path | Changed by |
-| :--- | :--- | :--- |
-| Base | `/overlayer/syshub` | base upgrades only, applied at boot |
-| Userland | `/overlayer/zexlib/union` | the package manager |
-| Boot | `/overlayer/zaisys` | base upgrades and the installer |
+| Layer | DHS name | Changed by | Zainium OS name |
+| :--- | :--- | :--- | :--- |
+| System (base) | `/overlayer/syshub` | base upgrades only, applied at boot | `syshub` |
+| Userland | `/overlayer/userland` | the package manager | `zexlib` (Zainium Executable Library) |
+| Ignition (boot) | `/overlayer/ignition` | base upgrades and the installer | `zaisys` |
+
+A distribution may give the userland and ignition layers names of its own, as
+Zainium OS does, as long as the structure inside them is unchanged and the names
+are documented in `/overlayer`.
 
 At boot the initramfs applies a staged base upgrade, then mounts the system view
-at `/overlayer/syshub` with OverlayFS: the base as the lower layer, the userland
-as the upper layer. Programs see one system; every file on disk belongs to
-exactly one layer. Deleting the userland leaves a base that still boots.
+at `/overlayer/syshub` with OverlayFS: the system layer as the lower layer, the
+userland as the upper layer. Programs see one system; every file on disk belongs
+to exactly one layer. Deleting the userland leaves a base that still boots.
 
 ## musl and glibc side by side
 
-| | musl (primary) | glibc (secondary) |
-| :--- | :--- | :--- |
-| Directory | `/overlayer/syshub/<arch>-<vendor>-linux-musl` | `/overlayer/zexlib/union/<arch>-<vendor>-linux-gnu` |
-| Layer | base | userland (optional package) |
-| Loader | `lib/ld-musl-<arch>.so.1` | `lib/ld-linux-x86-64.so.2` |
-| Libraries searched | `/overlayer/syshub/lib`, musl `lib`, union `lib` | glibc's own `lib` only |
-| Compiler | `cc`, `gcc`, `g++`, `c99` | `<arch>-<vendor>-linux-gnu-gcc` / `-g++` only |
-| `ldd`, `iconv`, `locale` | on `PATH` | in glibc's `bin`, off `PATH` |
-| Users, DNS, time zone | `/overlayer/syshub/etc` | `/overlayer/syshub/etc` (same files) |
+Every distribution chooses its **primary** C library — the one the base is
+built against. The other one is the optional **secondary** C library. Each
+lives in its own directory named after its target triplet, so both run on one
+system without conflicts.
 
-The base is built against musl. glibc is an ordinary package that the user can
-install for prebuilt software — commercial applications, games, vendor SDKs.
-Each program names its own loader, each loader searches only its own libraries,
-and nothing of glibc enters the shared `bin`, `lib` or `include`. Both libraries
-read the same users, hosts, DNS and time zone from the base.
+| | Design A: musl primary | Design B: glibc primary |
+| :--- | :--- | :--- |
+| Base built against | musl | glibc |
+| Primary directory | `syshub/<arch>-<vendor>-linux-musl` | `syshub/<arch>-<vendor>-linux-gnu` |
+| Secondary directory | `…-linux-gnu`, in `syshub` or `userland/union` | `…-linux-musl`, in `syshub` or `userland/union` |
+| `cc`, `gcc`, `ldd` on `PATH` | musl's | glibc's |
+| Secondary compiler | `<arch>-<vendor>-linux-gnu-gcc` | `<arch>-<vendor>-linux-musl-gcc` |
+| Example | Zainium OS (glibc as a userland package) | — |
+
+> **Where the secondary C library lives varies by distribution.** A
+> distribution can ship it in the system layer (always installed) or offer it as
+> a userland package (installed when needed). Both conform; the secondary always
+> keeps its own triplet directory and never writes into the shared `bin`, `lib`
+> or `include`.
+
+The rules that make this work:
+
+- the shared `bin`, `lib` and `include` belong to the primary C library;
+- every program names the loader of the C library it was linked against;
+- the secondary loader searches only its own `lib`, never the shared one;
+- both C libraries read users, hosts, DNS and the time zone from
+  `/overlayer/syshub/etc`;
+- unprefixed compilers belong to the primary; the secondary's compiler has its
+  triplet name and its own `pkg-config` path.
 
 Conflicts this prevents:
 
 - two loaders and two `libc` files competing for `/lib` and `/lib64`;
 - headers of one library compiled against the other's `libc`;
-- a glibc program loading a musl-built library from the shared `lib`;
+- a program of one library loading a library built for the other;
 - `libstdc++` / `libgcc_s` of one ABI loaded by programs of the other;
-- one `ld.so.cache` listing libraries of both;
-- glibc's `ldd` replacing musl's and misreporting base programs;
+- one loader cache listing libraries of both;
+- the secondary's `ldd` replacing the primary's and misreporting base programs;
 - `pkg-config` returning `.pc` files of the wrong library;
 - the two libraries reading users, DNS or the time zone from different places;
-- prebuilt binaries that name `/lib64/ld-linux-x86-64.so.2`, a path DHS does not
-  have — they are started through the installed glibc loader instead.
+- prebuilt binaries that name `/lib64/ld-linux-x86-64.so.2` or
+  `/lib/ld-musl-x86_64.so.1`, paths DHS does not have — they are started
+  through the installed loader of the same C library instead.
 
 ## Software built for FHS systems
 

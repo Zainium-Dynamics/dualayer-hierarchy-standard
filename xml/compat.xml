@@ -36,9 +36,9 @@ exists:</para>
 <filename>drivers/hardware/firmwares</filename> and
 <filename>boot</filename> to <filename>kernel</filename>.</para></listitem>
 <listitem><para>Try the result under, in order,
-<filename>/overlayer/syshub</filename>, the musl directory,
-<filename>/overlayer/zexlib/union</filename> and
-<filename>/overlayer/zaisys</filename>.</para></listitem>
+<filename>/overlayer/syshub</filename>, the primary C library's directory,
+<filename>/overlayer/userland/union</filename> and
+<filename>/overlayer/ignition</filename>.</para></listitem>
 </orderedlist>
 
 <para>For example, <filename>/usr/bin/env</filename> becomes
@@ -78,11 +78,12 @@ library.</para>
 
 <para>A package manager that installs packages built for other
 distributions <emphasis role="strong">SHOULD</emphasis> adapt them when
-installing: set the loader and library path of musl programs to DHS paths,
+installing: set the loader and library path of each program to the DHS
+paths of the C library it was linked against,
 rewrite <filename>pkg-config</filename> prefixes and script interpreters
 (<literal>#!</literal> lines) to DHS paths, and place the files under
-<filename>/overlayer/zexlib/union</filename>. Programs linked against glibc
-are not changed (<xref linkend="libc-packages"/>).</para>
+<filename>/overlayer/userland/union</filename>, never moving a program to
+the other C library (<xref linkend="libc-packages"/>).</para>
 </section>
 
 </chapter>

@@ -19,10 +19,10 @@
 <row><entry><filename>/usr/share</filename></entry><entry><filename>/overlayer/syshub/share</filename></entry></row>
 <row><entry><filename>/etc</filename></entry><entry><filename>/overlayer/syshub/etc</filename></entry></row>
 <row><entry><filename>/var</filename></entry><entry><filename>/overlayer/syshub/var</filename> (<filename>/var</filename> remains as a link)</entry></row>
-<row><entry><filename>/boot</filename></entry><entry><filename>/overlayer/zaisys/kernel</filename> and the boot loader directory</entry></row>
+<row><entry><filename>/boot</filename></entry><entry><filename>/overlayer/ignition/kernel</filename> and the boot loader directory</entry></row>
 <row><entry><filename>/lib/modules</filename></entry><entry><filename>/overlayer/syshub/drivers/modules</filename></entry></row>
 <row><entry><filename>/lib/firmware</filename></entry><entry><filename>/overlayer/syshub/drivers/hardware/firmwares</filename></entry></row>
-<row><entry><filename>/usr/local</filename>, <filename>/opt</filename></entry><entry><filename>/overlayer/zexlib/union</filename> (installed software, through the package manager)</entry></row>
+<row><entry><filename>/usr/local</filename>, <filename>/opt</filename></entry><entry><filename>/overlayer/userland/union</filename> (installed software, through the package manager)</entry></row>
 <row><entry>Loader in <filename>/lib</filename> or <filename>/lib64</filename></entry><entry>the C library's triplet directory (<xref linkend="libc-dirs"/>)</entry></row>
 <row><entry><filename>/home</filename>, <filename>/root</filename>, <filename>/tmp</filename>, <filename>/run</filename>, <filename>/dev</filename>, <filename>/proc</filename>, <filename>/sys</filename></entry><entry>unchanged</entry></row>
 </tbody>
@@ -44,6 +44,8 @@ map onto the standard as follows:</para>
 <tgroup cols="2">
 <thead><row><entry>Requirement</entry><entry>Zainium OS component</entry></row></thead>
 <tbody>
+<row><entry>Layer names (<xref linkend="layer-names"/>)</entry><entry><filename>syshub</filename>, <filename>zexlib</filename> (userland), <filename>zaisys</filename> (ignition)</entry></row>
+<row><entry>C library design (<xref linkend="libc-designs"/>)</entry><entry>Design A: musl primary, glibc as a userland package</entry></row>
 <row><entry>Composition at boot, staged upgrades, rollback</entry><entry><command>quantra-ramfs</command> (initramfs)</entry></row>
 <row><entry>Package management, receipts, base protection</entry><entry><command>zex</command></entry></row>
 <row><entry>Path resolution, loader redirection, toolchain selection</entry><entry><filename>libsys_resolver.so</filename>, <command>sys-resolver</command></entry></row>
@@ -63,10 +65,10 @@ map onto the standard as follows:</para>
 <variablelist>
 <varlistentry><term>Layer</term><listitem><para>A directory tree under <filename>/overlayer</filename> with a single owner.</para></listitem></varlistentry>
 <varlistentry><term>Base</term><listitem><para>The layer <filename>/overlayer/syshub</filename> on disk: the complete operating system as shipped.</para></listitem></varlistentry>
-<varlistentry><term>Userland</term><listitem><para>The layer <filename>/overlayer/zexlib</filename>: software the user installs.</para></listitem></varlistentry>
+<varlistentry><term>Userland</term><listitem><para>The layer <filename>/overlayer/userland</filename>: software the user installs.</para></listitem></varlistentry>
 <varlistentry><term>System view</term><listitem><para>The OverlayFS mount at <filename>/overlayer/syshub</filename> that combines the base and the userland.</para></listitem></varlistentry>
 <varlistentry><term>Target triplet</term><listitem><para>The GNU name of a platform, <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-<replaceable>os</replaceable>-<replaceable>libc</replaceable>, used to name a C library's directory.</para></listitem></varlistentry>
-<varlistentry><term>Primary / secondary C library</term><listitem><para>The C library of the base (musl) and the optional second one (glibc).</para></listitem></varlistentry>
+<varlistentry><term>Primary / secondary C library</term><listitem><para>The C library the system layer is built against, musl or glibc as the distribution chooses, and the optional other one.</para></listitem></varlistentry>
 </variablelist>
 </section>
 

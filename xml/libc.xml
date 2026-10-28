@@ -13,8 +13,8 @@ library's ABI. The two C libraries in wide use are not interchangeable:</para>
 <variablelist>
 <varlistentry><term>musl</term>
 <listitem><para>Small, strict and simple to audit; static linking works well;
-a clean base to build a whole operating system from source. DHS systems use
-musl as the C library of the base.</para></listitem></varlistentry>
+a clean base to build a whole operating system from source. Software built
+for Alpine, Void (musl) or Chimera links against it.</para></listitem></varlistentry>
 <varlistentry><term>GNU C Library (glibc)</term>
 <listitem><para>The C library of most Linux distributions. Prebuilt
 software — commercial applications, games, vendor SDKs and drivers, many
@@ -25,9 +25,9 @@ does not run on musl.</para></listitem></varlistentry>
 <para>On an FHS system both would compete for <filename>/lib</filename>,
 <filename>/lib64</filename>, <filename>/usr/include</filename>, the loader
 path, <command>ldd</command> and the compiler. DHS gives each its own
-directory and rules for which programs use which, so a system can be
-musl-based and still run glibc software without either breaking the
-other.</para>
+directory and rules for which programs use which, so a distribution can be
+built on either C library and still run software built for the other,
+without either breaking the other.</para>
 </section>
 
 <section xml:id="libc-roles">
@@ -35,39 +35,121 @@ other.</para>
 
 <itemizedlist>
 <listitem><para>The <emphasis>primary</emphasis> C library is the one the
-base is built against. On a DHS system it is musl. It is part of the base
-layer.</para></listitem>
-<listitem><para>The <emphasis>secondary</emphasis> C library is glibc. It is
-an ordinary userland package: the user installs it when glibc software is
-needed, and removing it leaves the base untouched.</para></listitem>
+system layer is built against. Each distribution chooses it: musl or glibc.
+It always lives in the system layer.</para></listitem>
+<listitem><para>The <emphasis>secondary</emphasis> C library is the other
+one. It is optional and lets the system run software built for it.</para></listitem>
 </itemizedlist>
 
-<para>The base layer <emphasis role="strong">MUST NOT</emphasis> contain
-files linked against the secondary C library. A base upgrade
-<emphasis role="strong">MUST</emphasis> reject such files.</para>
+<important><title>Where the secondary C library lives varies by distribution</title>
+<para>A distribution decides whether it ships the secondary C library in
+the system layer (installed on every system, so base programs may use it)
+or offers it as a userland package (installed only when the user needs
+it). Both are conforming. In either case the secondary C library lives in
+its own triplet directory and follows the rules of
+<xref linkend="libc-rules"/>; only the layer differs. If the secondary C
+library is a userland package, the system layer
+<emphasis role="strong">MUST NOT</emphasis> contain files linked against it,
+and a base upgrade <emphasis role="strong">MUST</emphasis> reject such
+files, so that removing the package cannot break the base.</para>
+</important>
+</section>
+
+<section xml:id="libc-designs">
+<title>The two designs</title>
+
+<section xml:id="design-musl">
+<title>Design A: musl primary, glibc secondary</title>
+
+<para>The base is built against musl. glibc is added for prebuilt glibc
+software.</para>
+
+<programlisting>/overlayer/
+├── syshub/
+│   ├── bin/  lib/  include/  …        musl programs and libraries
+│   ├── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl/   primary
+│   │   ├── lib/ld-musl-<replaceable>arch</replaceable>.so.1  lib/libc.so
+│   │   ├── include/
+│   │   └── bin/                        musl toolchain (cross-named)
+│   └── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu/    secondary, when shipped in the base
+└── userland/union/
+    └── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu/    secondary, when offered as a package
+        ├── lib/ld-linux-<replaceable>arch</replaceable>.so.2  lib/libc.so.6  lib/libstdc++.so.6 …
+        ├── include/
+        ├── bin/                        ldd, iconv, locale, gnu toolchain
+        └── etc/                        ld.so.conf, ld.so.cache</programlisting>
+
+<note><title>Implementation note</title>
+<para>Zainium OS uses design A with glibc as a userland package
+(<command>glibc</command>, <command>glibc-dev</command>,
+<command>glibc-toolchain</command>) in
+<filename>/overlayer/zexlib/union/x86_64-zainium-linux-gnu</filename>; the
+base rejects files linked against glibc.</para></note>
+</section>
+
+<section xml:id="design-glibc">
+<title>Design B: glibc primary, musl secondary</title>
+
+<para>The base is built against glibc, as most distributions are today.
+musl is added for software built for musl distributions, or for building
+small static programs.</para>
+
+<programlisting>/overlayer/
+├── syshub/
+│   ├── bin/  lib/  include/  …        glibc programs and libraries
+│   ├── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu/    primary
+│   │   ├── lib/ld-linux-<replaceable>arch</replaceable>.so.2  lib/libc.so.6 …
+│   │   ├── include/
+│   │   ├── bin/                        ldd, iconv, locale, gnu toolchain
+│   │   └── etc/                        ld.so.conf, ld.so.cache
+│   └── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl/   secondary, when shipped in the base
+└── userland/union/
+    └── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl/   secondary, when offered as a package
+        ├── lib/ld-musl-<replaceable>arch</replaceable>.so.1  lib/libc.so
+        ├── include/
+        ├── bin/                        musl toolchain
+        └── etc/                        ld-musl-<replaceable>arch</replaceable>.path</programlisting>
+</section>
+
+<section xml:id="design-compare">
+<title>Comparison</title>
+
+<informaltable>
+<tgroup cols="3">
+<thead><row><entry></entry><entry>Design A (musl primary)</entry><entry>Design B (glibc primary)</entry></row></thead>
+<tbody>
+<row><entry>Base built against</entry><entry>musl</entry><entry>glibc</entry></row>
+<row><entry>Programs in the shared <filename>bin</filename>, libraries in the shared <filename>lib</filename></entry><entry>musl</entry><entry>glibc</entry></row>
+<row><entry><command>cc</command>, <command>gcc</command>, <command>ldd</command> on <envar>PATH</envar></entry><entry>musl's</entry><entry>glibc's</entry></row>
+<row><entry>Secondary C library</entry><entry>glibc, in the system layer or as a userland package</entry><entry>musl, in the system layer or as a userland package</entry></row>
+<row><entry>Secondary compiler</entry><entry><command><replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu-gcc</command></entry><entry><command><replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl-gcc</command></entry></row>
+<row><entry>Runs without the secondary installed</entry><entry>software built for musl distributions</entry><entry>software built for glibc distributions</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+</section>
 </section>
 
 <section xml:id="libc-dirs">
 <title>Directories</title>
 
 <para>Each C library is installed into a directory named after its GNU
-target triplet:</para>
+target triplet: <filename><replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl</filename>
+for musl, <filename><replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu</filename>
+for glibc. The primary one is in the system layer; the secondary one is in
+the system layer or in <filename>/overlayer/userland/union</filename>.</para>
 
 <informaltable>
 <tgroup cols="3">
-<thead><row><entry></entry><entry>musl (primary)</entry><entry>glibc (secondary)</entry></row></thead>
+<colspec colname="c1"/><colspec colname="c2"/><colspec colname="c3"/>
+<thead><row><entry>Inside the triplet directory</entry><entry>musl</entry><entry>glibc</entry></row></thead>
 <tbody>
-<row><entry>Directory</entry>
-<entry><filename>/overlayer/syshub/<replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl</filename></entry>
-<entry><filename>/overlayer/zexlib/union/<replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu</filename></entry></row>
-<row><entry>Layer</entry><entry>base</entry><entry>userland</entry></row>
 <row><entry>Loader</entry><entry><filename>lib/ld-musl-<replaceable>arch</replaceable>.so.1</filename></entry><entry><filename>lib/ld-linux-x86-64.so.2</filename> (name per architecture)</entry></row>
 <row><entry>C library</entry><entry><filename>lib/libc.so</filename></entry><entry><filename>lib/libc.so.6</filename> and the other glibc libraries</entry></row>
 <row><entry>Headers</entry><entry><filename>include</filename></entry><entry><filename>include</filename></entry></row>
-<row><entry>Utilities</entry><entry>in the base <filename>bin</filename></entry><entry><filename>bin</filename> (<command>ldd</command>, <command>iconv</command>, <command>locale</command>, …), not on <envar>PATH</envar></entry></row>
-<row><entry>Loader configuration</entry><entry>built in</entry><entry><filename>etc/ld.so.conf</filename>, <filename>etc/ld.so.cache</filename>, <filename>etc/ld.so.preload</filename></entry></row>
-<row><entry>C and C++ compiler</entry><entry><command>gcc</command>, <command>g++</command>, <command>cc</command>, <command>c99</command> and <command><replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-musl-gcc</command></entry><entry><command><replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu-gcc</command>, <command>…-g++</command> only</entry></row>
-<row><entry>C++ runtime</entry><entry><filename>libstdc++</filename>, <filename>libgcc_s</filename> in the base <filename>lib</filename></entry><entry>its own copies in the glibc <filename>lib</filename></entry></row>
+<row><entry>Utilities</entry><entry><filename>bin</filename></entry><entry><filename>bin</filename> (<command>ldd</command>, <command>iconv</command>, <command>locale</command>, …)</entry></row>
+<row><entry>Loader configuration</entry><entry><filename>etc/ld-musl-<replaceable>arch</replaceable>.path</filename> (or built in)</entry><entry><filename>etc/ld.so.conf</filename>, <filename>etc/ld.so.cache</filename>, <filename>etc/ld.so.preload</filename></entry></row>
+<row><entry>C++ runtime</entry><entry namest="c2" nameend="c3"><filename>libstdc++</filename> and <filename>libgcc_s</filename>: the primary's copies in the shared <filename>lib</filename>, the secondary's in its own <filename>lib</filename></entry></row>
 </tbody>
 </tgroup>
 </informaltable>
@@ -85,8 +167,8 @@ install anything into the shared <filename>bin</filename>,
 <filename>include</filename> of the system view. As a result
 <command>cc</command>, the headers in the default search path,
 <command>ldd</command> and every library in
-<filename>/overlayer/syshub/lib</filename> are musl's, and installing glibc
-changes none of them.</para>
+<filename>/overlayer/syshub/lib</filename> belong to the primary C library,
+and installing the secondary changes none of them.</para>
 </section>
 
 <section xml:id="libc-loader">
@@ -103,21 +185,22 @@ installed.</para>
 <title>Library search paths do not cross</title>
 
 <itemizedlist>
-<listitem><para>The musl loader searches, in this order,
-<filename>/overlayer/syshub/lib</filename>, the musl
+<listitem><para>The primary loader searches, in this order,
+<filename>/overlayer/syshub/lib</filename>, the primary triplet
 <filename>lib</filename> directory and
-<filename>/overlayer/zexlib/union/lib</filename>. Base programs also carry
+<filename>/overlayer/userland/union/lib</filename>. Base programs
+<emphasis role="strong">SHOULD</emphasis> also carry
 <filename>/overlayer/syshub/lib</filename> as their library path
 (<literal>RPATH</literal>).</para></listitem>
-<listitem><para>The glibc loader <emphasis role="strong">MUST</emphasis>
-search only the glibc <filename>lib</filename> directory and the directories
-listed in its own <filename>etc/ld.so.conf</filename>. It
-<emphasis role="strong">MUST NOT</emphasis> search
-<filename>/overlayer/syshub/lib</filename>: the libraries there are built
-for musl and cannot be loaded into a glibc process.</para></listitem>
-<listitem><para>Libraries that glibc programs need — including the C++
-runtime — are installed into the glibc <filename>lib</filename>
-directory.</para></listitem>
+<listitem><para>The secondary loader <emphasis role="strong">MUST</emphasis>
+search only its own <filename>lib</filename> directory and the directories
+named in its own configuration. It <emphasis role="strong">MUST NOT</emphasis>
+search <filename>/overlayer/syshub/lib</filename>: the libraries there are
+built for the primary C library and cannot be loaded into a process of the
+other.</para></listitem>
+<listitem><para>Libraries that programs of the secondary C library need —
+including its C++ runtime — are installed into the secondary's
+<filename>lib</filename> directory.</para></listitem>
 </itemizedlist>
 </section>
 
@@ -125,8 +208,9 @@ directory.</para></listitem>
 <title>Both C libraries read the same system configuration</title>
 
 <para>Users, groups, passwords, host names, DNS and the time zone are
-system facts, not library facts. The paths compiled into the secondary C
-library <emphasis role="strong">MUST</emphasis> point at the base:</para>
+system facts, not library facts. The paths compiled into every C library on
+the system <emphasis role="strong">MUST</emphasis> point at the system
+layer:</para>
 
 <informaltable>
 <tgroup cols="2">
@@ -135,16 +219,16 @@ library <emphasis role="strong">MUST</emphasis> point at the base:</para>
 <row><entry><filename>/etc/passwd</filename>, <filename>group</filename>, <filename>shadow</filename>, <filename>hosts</filename>, <filename>resolv.conf</filename>, <filename>nsswitch.conf</filename>, <filename>localtime</filename></entry><entry><filename>/overlayer/syshub/etc/…</filename></entry></row>
 <row><entry>Time zone database</entry><entry><filename>/overlayer/syshub/share/zoneinfo</filename></entry></row>
 <row><entry><filename>/bin/sh</filename> (used by <function>system</function>, <function>popen</function>)</entry><entry><filename>/overlayer/syshub/bin/sh</filename></entry></row>
-<row><entry>Default <envar>PATH</envar> (used by <function>execvp</function>)</entry><entry><filename>/overlayer/syshub/bin:/overlayer/zexlib/union/bin</filename></entry></row>
+<row><entry>Default <envar>PATH</envar> (used by <function>execvp</function>)</entry><entry><filename>/overlayer/syshub/bin:/overlayer/userland/union/bin</filename></entry></row>
 <row><entry><filename>/etc/mtab</filename></entry><entry><filename>/proc/self/mounts</filename></entry></row>
-<row><entry><filename>/etc/ld.so.conf</filename>, <filename>ld.so.cache</filename>, <filename>ld.so.preload</filename></entry><entry>the glibc directory's own <filename>etc</filename></entry></row>
+<row><entry>Loader configuration (<filename>ld.so.conf</filename>, <filename>ld.so.cache</filename>, <filename>ld-musl-<replaceable>arch</replaceable>.path</filename>)</entry><entry>the C library's own <filename>etc</filename></entry></row>
 </tbody>
 </tgroup>
 </informaltable>
 
-<para>The secondary C library <emphasis role="strong">SHOULD</emphasis> be
-built with these paths changed by source patches, so that no symbolic links
-are needed.</para>
+<para>A C library <emphasis role="strong">SHOULD</emphasis> be built with
+these paths changed by source patches, so that no symbolic links are
+needed.</para>
 </section>
 
 <section xml:id="libc-toolchain">
@@ -157,8 +241,8 @@ are needed.</para>
 <listitem><para>The secondary C library's compiler
 <emphasis role="strong">MUST</emphasis> be installed under its triplet name
 only, <emphasis role="strong">MUST</emphasis> take its headers, start files
-and libraries from the glibc directory, and
-<emphasis role="strong">MUST</emphasis> write the glibc loader's DHS path
+and libraries from the secondary's directory, and
+<emphasis role="strong">MUST</emphasis> write the secondary loader's DHS path
 into the programs it links.</para></listitem>
 <listitem><para>Each toolchain has its own <command>pkg-config</command>
 search path, so that a build against one C library never picks up
@@ -180,14 +264,14 @@ default and <command>sys-resolver get</command> shows it. The variable
 </section>
 
 <section xml:id="libc-packages">
-<title>Package managers leave glibc programs as they are</title>
+<title>Package managers keep each program on its own C library</title>
 
 <para>A package manager that adapts foreign packages to DHS paths
 (<xref linkend="foreign-packages"/>) <emphasis role="strong">MUST</emphasis>
-recognise programs and libraries linked against glibc — by their
-interpreter or their dependency on <filename>libc.so.6</filename> — and
-<emphasis role="strong">MUST NOT</emphasis> rewrite their loader or library
-path to musl's.</para>
+recognise which C library each program and library was linked against — by
+its interpreter or its dependency on <filename>libc.so.6</filename> or
+<filename>libc.so</filename> — and <emphasis role="strong">MUST NOT</emphasis>
+rewrite its loader or library path to the other C library's.</para>
 </section>
 </section>
 
@@ -199,14 +283,14 @@ path to musl's.</para>
 <thead><row><entry>Conflict</entry><entry>What goes wrong when both share FHS paths</entry><entry>How DHS prevents it</entry></row></thead>
 <tbody>
 <row><entry>Loader</entry><entry>Both loaders and both <filename>libc</filename> files compete for <filename>/lib</filename> and <filename>/lib64</filename>; a package of one library can overwrite the other's.</entry><entry>Each loader is in its own triplet directory; every program names its own (<xref linkend="libc-loader"/>).</entry></row>
-<row><entry>Headers</entry><entry>Compiling against one library's <filename>stdio.h</filename> and linking against the other's <filename>libc</filename> produces programs that fail at run time.</entry><entry>Each library's headers are in its own <filename>include</filename>; each compiler is built to use only its own.</entry></row>
-<row><entry>Shared libraries</entry><entry>A glibc program finds a musl-built <filename>libz.so</filename> in <filename>/usr/lib</filename> and crashes or fails to load.</entry><entry>The glibc loader never searches the shared <filename>lib</filename> (<xref linkend="libc-search"/>).</entry></row>
+<row><entry>Headers</entry><entry>Compiling against one library's <filename>stdio.h</filename> and linking against the other's <filename>libc</filename> produces programs that fail at run time.</entry><entry>Each library's headers are in its own <filename>include</filename>; each compiler uses only its own.</entry></row>
+<row><entry>Shared libraries</entry><entry>A program of one library finds a library built for the other in <filename>/usr/lib</filename> and crashes or fails to load.</entry><entry>The secondary loader never searches the shared <filename>lib</filename> (<xref linkend="libc-search"/>).</entry></row>
 <row><entry>C++ runtime</entry><entry><filename>libstdc++</filename> and <filename>libgcc_s</filename> built for one library are loaded by programs of the other.</entry><entry>Each library has its own copies.</entry></row>
-<row><entry>Loader cache</entry><entry><command>ldconfig</command> lists libraries of both in one <filename>ld.so.cache</filename>.</entry><entry>glibc's cache and configuration live in glibc's directory and list only glibc libraries.</entry></row>
-<row><entry>Tools on <envar>PATH</envar></entry><entry>glibc's <command>ldd</command> or <command>iconv</command> replaces musl's and gives wrong answers for base programs.</entry><entry>glibc's tools stay in glibc's <filename>bin</filename>, off <envar>PATH</envar>.</entry></row>
+<row><entry>Loader cache</entry><entry><command>ldconfig</command> lists libraries of both in one <filename>ld.so.cache</filename>.</entry><entry>Each loader's configuration lives in its own directory and lists only its own libraries.</entry></row>
+<row><entry>Tools on <envar>PATH</envar></entry><entry>The secondary's <command>ldd</command> or <command>iconv</command> replaces the primary's and gives wrong answers for base programs.</entry><entry>The secondary's tools stay in its own <filename>bin</filename>, off <envar>PATH</envar>.</entry></row>
 <row><entry><command>pkg-config</command></entry><entry>A build picks up <filename>.pc</filename> files of the wrong library.</entry><entry>Separate search paths per toolchain.</entry></row>
-<row><entry>System configuration</entry><entry>Two libraries read users, DNS or the time zone from different places and disagree.</entry><entry>Both read the base's <filename>etc</filename> (<xref linkend="libc-shared-config"/>).</entry></row>
-<row><entry>Prebuilt binaries</entry><entry>A program built on another distribution names <filename>/lib64/ld-linux-x86-64.so.2</filename>, which a DHS root does not have.</entry><entry>The missing loader path is redirected to the installed glibc loader (<xref linkend="loader-redirect"/>).</entry></row>
+<row><entry>System configuration</entry><entry>Two libraries read users, DNS or the time zone from different places and disagree.</entry><entry>Both read the system layer's <filename>etc</filename> (<xref linkend="libc-shared-config"/>).</entry></row>
+<row><entry>Prebuilt binaries</entry><entry>A program built on another distribution names <filename>/lib64/ld-linux-x86-64.so.2</filename> or <filename>/lib/ld-musl-x86_64.so.1</filename>, which a DHS root does not have.</entry><entry>The missing loader path is redirected to the installed loader of the same C library (<xref linkend="loader-redirect"/>).</entry></row>
 </tbody>
 </tgroup>
 </informaltable>

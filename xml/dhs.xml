@@ -34,10 +34,12 @@ or service mark.</para>
 <abstract>
 <para>The Dualayer Hierarchy Standard (DHS) defines where the files of an
 operating system live when the system is assembled from separate layers: a
-self-sufficient base, a layer of installed software, and a boot layer. It
+self-sufficient base, a layer of installed software, and a ignition layer. It
 also defines how two C libraries — musl and the GNU C Library (glibc) — are
 installed on the same system, each in a directory of its own, so that
 programs linked against either one run without conflicting with the other.
+Either C library can be the one the base is built on; the distribution
+chooses.
 The standard is written for operating system vendors, package managers,
 toolchain authors and application developers.</para>
 </abstract>

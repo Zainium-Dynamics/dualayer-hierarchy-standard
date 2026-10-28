@@ -21,7 +21,7 @@ userland removable.</para>
 
 <para>For every installed package the package manager
 <emphasis role="strong">MUST</emphasis> record a receipt in
-<filename>/overlayer/zexlib/registry</filename> that lists each file it
+<filename>/overlayer/userland/registry</filename> that lists each file it
 installed. Removing the package <emphasis role="strong">MUST</emphasis>
 delete exactly those files.</para>
 </section>
@@ -55,11 +55,11 @@ menu or the kernel command line.</para></listitem>
 <section xml:id="privileges">
 <title>Protected paths</title>
 
-<para>The base and boot layers <emphasis role="strong">SHOULD</emphasis> be
+<para>The base and ignition layers <emphasis role="strong">SHOULD</emphasis> be
 protected against accidental change even by the administrator: the
 privilege tool <emphasis role="strong">SHOULD</emphasis> refuse destructive
 commands (removing, moving, overwriting, shredding) on
-<filename>/overlayer/syshub</filename>, <filename>/overlayer/zaisys</filename>,
+<filename>/overlayer/syshub</filename>, <filename>/overlayer/ignition</filename>,
 <filename>/overlayer/.syshub-pending</filename> and
 <filename>/overlayer</filename> itself. The base changes only through base
 upgrades.</para>

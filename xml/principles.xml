@@ -17,7 +17,7 @@ directory, user data and the virtual filesystems the kernel provides.</para></li
 <varlistentry>
 <term>Every layer has one owner</term>
 <listitem><para>The base layer is changed only by base upgrades, the
-userland layer only by the package manager, the boot layer only by base
+userland layer only by the package manager, the ignition layer only by base
 upgrades and the installer. No layer writes into another.</para></listitem>
 </varlistentry>
 

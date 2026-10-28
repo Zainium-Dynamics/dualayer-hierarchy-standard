@@ -201,5 +201,6 @@ div.navheader hr, div.navfooter hr { border: 0; border-top: 1px solid var(--rule
   pre, div.note, div.important, tr, div.variablelist dl dt { break-inside: avoid; }
   h2, h3, h4 { break-after: avoid; }
   td code.filename, td code.literal { white-space: normal; overflow-wrap: anywhere; }
+  pre.programlisting, pre.screen { white-space: pre-wrap; font-size: 0.78rem; }
   div.informaltable table, div.table table { width: 100%; }
 }

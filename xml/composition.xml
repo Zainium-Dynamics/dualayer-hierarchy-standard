@@ -20,12 +20,12 @@ use the base before this step is complete.</para></listitem>
 with OverlayFS, using:
 <itemizedlist>
 <listitem><para>lower layers, highest first: <filename>overlayer/syshub</filename>
-(the base) and <filename>overlayer/zaisys</filename>;</para></listitem>
-<listitem><para>upper layer: <filename>overlayer/zexlib/union</filename>;</para></listitem>
-<listitem><para>work directory: <filename>overlayer/zexlib/work</filename>.</para></listitem>
+(the base) and <filename>overlayer/ignition</filename>;</para></listitem>
+<listitem><para>upper layer: <filename>overlayer/userland/union</filename>;</para></listitem>
+<listitem><para>work directory: <filename>overlayer/userland/work</filename>.</para></listitem>
 </itemizedlist></para></listitem>
-<listitem><para>Mount <filename>zaisys</filename> (read-only),
-<filename>zexlib</filename>, <filename>agents</filename> and the other
+<listitem><para>Mount <filename>ignition</filename> (read-only),
+<filename>userland</filename>, <filename>agents</filename> and the other
 entries of <filename>/overlayer</filename> at their own paths, and
 <filename>/home</filename> and <filename>/root</filename> from the
 disk.</para></listitem>
@@ -65,7 +65,7 @@ shell at a given step.</para></note>
 <tgroup cols="3">
 <thead><row><entry></entry><entry>Live media</entry><entry>Installed system</entry></row></thead>
 <tbody>
-<row><entry>Root</entry><entry>read-only compressed image in <filename>zaisys</filename></entry><entry>disk partition</entry></row>
+<row><entry>Root</entry><entry>read-only compressed image in <filename>ignition</filename></entry><entry>disk partition</entry></row>
 <row><entry>Userland layer</entry><entry>in memory, lost at reboot</entry><entry>on disk</entry></row>
 <row><entry><filename>/home</filename>, <filename>/root</filename></entry><entry>in memory over the image</entry><entry>on disk</entry></row>
 <row><entry>Base upgrades</entry><entry>not available</entry><entry>staged, applied at the next boot</entry></row>
