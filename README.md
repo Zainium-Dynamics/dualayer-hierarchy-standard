@@ -10,6 +10,7 @@ of installed software and a boot layer — and how two C libraries, **musl** and
 *Dualayer* = **dual** (two C libraries) + **layer** (a system built from layers).
 
 - Version: **1.0** (October 2026)
+- PDF: [dualayer-hierarchy-standard.pdf](https://github.com/Zainium-Dynamics/dualayer-hierarchy-standard/releases/download/latest/dualayer-hierarchy-standard.pdf) — rebuilt from `main` on every change
 - Reference implementation: [Zainium OS](https://github.com/Zainium-Dynamics)
 - License: [CC BY-SA 4.0](LICENSE)
 
@@ -40,8 +41,9 @@ directory of its own.
 │   │   └── drivers/modules/  drivers/hardware/firmwares/
 │   ├── userland/                    userland layer: software the user installs
 │   │   ├── union/                   files of installed packages (upper layer)
+│   │   │   ├── var/                 variable data of installed software
 │   │   │   └── x86_64-<vendor>-linux-gnu/  secondary C library, when installed as a package
-│   │   └── work/  registry/  var/
+│   │   └── work/  registry/
 │   ├── ignition/                    ignition layer: kernels, initramfs, boot loader (read-only)
 │   ├── agents/                      instructions for AI agents (optional)
 │   └── .syshub-pending/             a staged base upgrade
@@ -145,11 +147,15 @@ Rendered HTML is attached to every CI run (artifact `dhs-html`).
 make valid      # validate against the DocBook 5 schema (xmllint)
 make html       # one page per chapter: build/dhs/html/
 make single     # one page: build/dhs/single/index.html
-make pdf        # build/dhs/dhs.pdf, needs WeasyPrint
+make pdf        # build/dhs/dhs.pdf, the print edition, needs WeasyPrint
 ```
 
 Requirements: `make`, `xsltproc`, `xmllint`. The DocBook schemas and XSL
-stylesheets are included in `docbook/`.
+stylesheets are included in `docbook/`. The print edition has its own
+stylesheet, logos and fonts (IBM Plex, SIL Open Font License) in
+`docbook/print/`, so it looks the same wherever it is built. CI builds the
+HTML and the PDF for every change and publishes the PDF of `main` on the
+`latest` release.
 
 ## Implementations
 

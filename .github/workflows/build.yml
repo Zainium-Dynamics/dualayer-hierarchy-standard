@@ -3,19 +3,59 @@ name: build
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
       - name: Install tools
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends make xsltproc libxml2-utils
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends make xsltproc libxml2-utils libpango-1.0-0 libpangoft2-1.0-0
+          pip install weasyprint==70.0
       - name: Validate
         run: make valid
-      - name: Build HTML
-        run: make html single
+      - name: Build HTML and PDF
+        run: make html single pdf
       - uses: actions/upload-artifact@v4
         with:
-          name: dhs-html
-          path: build/dhs
+          name: dhs
+          path: |
+            build/dhs/html
+            build/dhs/single
+            build/dhs/dhs.pdf
+
+  # Every change that reaches main replaces the PDF on the "latest" release, so
+  # releases/download/latest/dualayer-hierarchy-standard.pdf is always current.
+  publish-pdf:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency: publish-pdf
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dhs
+          path: dhs
+      - name: Replace the PDF on the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cp dhs/dhs.pdf dualayer-hierarchy-standard.pdf
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest dualayer-hierarchy-standard.pdf \
+            --target "$GITHUB_SHA" \
+            --title "Dualayer Hierarchy Standard — latest PDF" \
+            --notes "Built from ${GITHUB_SHA::7} on main. The PDF is always at https://github.com/${GH_REPO}/releases/download/latest/dualayer-hierarchy-standard.pdf" \
+            --latest

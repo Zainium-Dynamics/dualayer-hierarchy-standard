@@ -1,0 +1,350 @@
+/* The PDF edition of the Dualayer Hierarchy Standard, printed by WeasyPrint.
+   IBM Plex Serif and Mono (SIL Open Font License, fonts/OFL.txt). */
+
+@font-face { font-family: "Plex Serif"; src: url("fonts/IBMPlexSerif-Regular.ttf"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Plex Serif"; src: url("fonts/IBMPlexSerif-Italic.ttf"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Plex Serif"; src: url("fonts/IBMPlexSerif-SemiBold.ttf"); font-weight: 600; font-style: normal; }
+@font-face { font-family: "Plex Serif"; src: url("fonts/IBMPlexSerif-SemiBoldItalic.ttf"); font-weight: 600; font-style: italic; }
+@font-face { font-family: "Plex Serif"; src: url("fonts/IBMPlexSerif-Bold.ttf"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "Plex Mono"; src: url("fonts/IBMPlexMono-Regular.ttf"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Plex Mono"; src: url("fonts/IBMPlexMono-Italic.ttf"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Plex Mono"; src: url("fonts/IBMPlexMono-Medium.ttf"); font-weight: 500; font-style: normal; }
+@font-face { font-family: "Plex Mono"; src: url("fonts/IBMPlexMono-SemiBold.ttf"); font-weight: 600; font-style: normal; }
+
+:root {
+  --ink: #16181d;
+  --muted: #5d6169;
+  --rule: #d9dbe0;
+  --panel: #f4f5f7;
+  --accent: #0e6f8f;
+  --night: #0f1115;
+}
+
+/* ── Pages ─────────────────────────────────────────────────────────────── */
+
+@page {
+  size: A4;
+  margin: 27mm 22mm 24mm 22mm;
+  @top-left { content: element(header); width: 72mm; vertical-align: bottom; padding-bottom: 4mm; }
+  @top-right {
+    content: string(chapter);
+    width: 94mm;
+    white-space: nowrap;
+    font: 500 7.5pt "Plex Mono"; color: var(--muted);
+    vertical-align: bottom; padding-bottom: 4.6mm;
+  }
+  @bottom-left {
+    content: "Zainium Dynamics · CC BY-SA 4.0";
+    font: 400 7.5pt "Plex Mono"; color: var(--muted);
+    vertical-align: top; padding-top: 4mm;
+  }
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font: 500 7.5pt "Plex Mono"; color: var(--ink);
+    vertical-align: top; padding-top: 4mm;
+  }
+}
+@page cover {
+  margin: 0;
+  background: var(--night);
+  @top-left { content: none; }
+  @top-right { content: none; }
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+@page front {
+  @top-right { content: none; }
+}
+
+html { font-size: 10pt; }
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Plex Serif", serif;
+  font-size: 10pt;
+  line-height: 1.55;
+  hyphens: manual;
+  text-align: left;
+}
+
+/* ── Cover ─────────────────────────────────────────────────────────────── */
+
+.cover {
+  page: cover;
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  color: #f1f2f4;
+  background: var(--night);
+  break-after: page;
+}
+.cover-brand { position: absolute; top: 24mm; left: 24mm; }
+.cover-logo { width: 26mm; display: block; margin-bottom: 7mm; }
+.cover-org {
+  font: 500 8.5pt "Plex Mono";
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #c9ccd2;
+}
+.cover-main { position: absolute; top: 108mm; left: 24mm; right: 26mm; }
+.cover-kind {
+  margin: 0 0 7mm;
+  font: 500 8.5pt "Plex Mono";
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #7fc4dc;
+}
+.cover-kind::before {
+  content: "";
+  display: inline-block;
+  width: 12mm;
+  height: 0.6pt;
+  margin: 0 4mm 0.9mm 0;
+  background: #7fc4dc;
+  vertical-align: middle;
+}
+.cover-title {
+  margin: 0;
+  font: 600 34pt/1.08 "Plex Serif";
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+.cover-subtitle {
+  margin: 6mm 0 0;
+  max-width: 128mm;
+  font: 400 13pt/1.45 "Plex Serif";
+  color: #b8bcc4;
+}
+.cover-meta {
+  position: absolute;
+  left: 24mm;
+  bottom: 40mm;
+  width: auto;
+  border-collapse: collapse;
+  font: 400 8.5pt "Plex Mono";
+}
+.cover-meta th, .cover-meta td { border: none; font-size: 8.5pt; }
+.cover-meta th {
+  padding: 1.1mm 9mm 1.1mm 0;
+  text-align: left;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7d828c;
+}
+.cover-meta td { padding: 1.1mm 0; color: #eef0f3; }
+.cover-foot {
+  position: absolute;
+  left: 24mm;
+  right: 24mm;
+  bottom: 20mm;
+  padding-top: 4mm;
+  border-top: 0.5pt solid #2c3038;
+  font: 400 7.5pt "Plex Mono";
+  color: #7d828c;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* The header shown on every page after the cover. */
+.running-header {
+  position: running(header);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 2.4mm;
+  font: 500 7.5pt "Plex Mono";
+  color: var(--ink);
+}
+.running-header img { width: 4.2mm; height: auto; }
+.running-version {
+  padding: 0.2mm 1.4mm;
+  border: 0.5pt solid var(--rule);
+  border-radius: 1mm;
+  color: var(--muted);
+}
+
+/* ── Front matter: licence, abstract, contents ────────────────────────── */
+
+div.book > div.titlepage { page: front; }
+div.book > div.titlepage h1.title,
+div.book > div.titlepage h2.subtitle,
+div.book > div.titlepage .authorgroup,
+div.book > div.titlepage .releaseinfo,
+div.book > div.titlepage .pubdate,
+div.book > div.titlepage + hr,
+div.book > hr { display: none; }
+
+div.book > div.titlepage .abstract {
+  margin: 0 0 12mm;
+  padding: 0;
+  font-size: 11.5pt;
+  line-height: 1.6;
+}
+div.book > div.titlepage .abstract p.title {
+  margin: 0 0 4mm;
+  font: 500 8pt "Plex Mono";
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+div.book > div.titlepage .abstract p.title b { font-weight: 500; }
+div.book > div.titlepage .copyright,
+div.book > div.titlepage .legalnotice {
+  font-size: 8.5pt;
+  line-height: 1.55;
+  color: var(--muted);
+}
+div.book > div.titlepage .copyright { margin: 0 0 2mm; padding-top: 5mm; border-top: 0.5pt solid var(--rule); }
+div.book > div.titlepage .legalnotice p { margin: 0 0 2mm; }
+/* the abstract (the last block of the title page) first, then the licence */
+div.book > div.titlepage > div { display: flex; flex-direction: column; }
+div.book > div.titlepage > div > div:last-child { order: -1; }
+
+div.toc { page: front; break-before: page; break-after: page; }
+div.toc > p:first-child {
+  margin: 0 0 8mm;
+  font: 600 20pt "Plex Serif";
+}
+div.toc > p:first-child b { font-weight: 600; }
+div.toc dl { margin: 0; }
+div.toc dd { margin: 0 0 0 7mm; }
+div.toc dt { margin: 0; }
+div.toc a { color: var(--ink); text-decoration: none; }
+div.toc a::after {
+  content: leader(dotted) " " target-counter(attr(href url), page);
+  font: 400 8.5pt "Plex Mono";
+  color: var(--muted);
+}
+div.toc > dl > dt { margin-top: 3.2mm; font-weight: 600; }
+div.toc > dl > dt:first-child { margin-top: 0; }
+div.toc > dl > dd dt { font-size: 9.5pt; line-height: 1.75; }
+div.toc > dl > dd dd dt { font-size: 9pt; color: var(--muted); }
+
+/* ── Chapters and sections ────────────────────────────────────────────── */
+
+div.chapter, div.appendix { break-before: page; }
+div.chapter > div.titlepage, div.appendix > div.titlepage { margin: 4mm 0 9mm; }
+div.chapter > div.titlepage h1.title,
+div.appendix > div.titlepage h1.title {
+  margin: 0;
+  padding-bottom: 5mm;
+  border-bottom: 1.2pt solid var(--ink);
+  font: 600 22pt/1.15 "Plex Serif";
+  string-set: chapter content(text);
+  bookmark-level: 1;
+}
+div.chapter > div.titlepage h1.title::before,
+div.appendix > div.titlepage h1.title::before {
+  display: block;
+  margin-bottom: 3mm;
+  font: 500 8pt "Plex Mono";
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+div.chapter > div.titlepage h1.title::before { content: "Chapter"; }
+div.appendix > div.titlepage h1.title::before { content: "Appendix"; }
+
+h2.title, h3.title, h4.title { font-family: "Plex Serif"; break-after: avoid; }
+div.section h2.title { margin: 9mm 0 3mm; font-size: 14pt; font-weight: 600; line-height: 1.25; bookmark-level: 2; }
+div.section h3.title { margin: 7mm 0 2.5mm; font-size: 11.5pt; font-weight: 600; bookmark-level: 3; }
+div.section h4.title { margin: 5mm 0 2mm; font-size: 10.5pt; font-weight: 600; bookmark-level: 4; }
+h1, h2, h3, h4 { color: var(--ink); }
+
+p { margin: 0 0 2.8mm; orphans: 3; widows: 3; }
+a { color: var(--accent); text-decoration: none; }
+a.link[href^="http"]::after { content: none; }
+em { font-style: italic; }
+strong, b { font-weight: 600; }
+
+/* RFC 2119 keywords */
+span.emphasis > strong, span.strong > strong { letter-spacing: 0.02em; }
+
+code, .filename, .literal, .command, .envar, .function, .replaceable, tt {
+  font-family: "Plex Mono", monospace;
+  font-size: 0.86em;
+}
+code.filename, code.literal, code.command, code.envar, code.function {
+  padding: 0 0.5mm;
+  background: var(--panel);
+  border-radius: 0.6mm;
+}
+.replaceable { font-style: italic; color: var(--accent); }
+/* inside trees and listings a placeholder keeps the column width */
+pre .replaceable, pre code { font-size: 1em; background: none; padding: 0; }
+
+/* lists */
+ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+li { margin: 0 0 1.2mm; }
+li > p { margin: 0 0 1.2mm; }
+ul.itemizedlist { list-style-type: none !important; }
+ul.itemizedlist > li { position: relative; }
+ul.itemizedlist > li::before {
+  content: "";
+  position: absolute;
+  left: -4.2mm;
+  top: 2.2mm;
+  width: 1.4mm;
+  height: 1.4mm;
+  background: var(--accent);
+}
+
+/* definition lists: principles, directories */
+div.variablelist dl { margin: 0 0 4mm; }
+div.variablelist dt {
+  margin: 3.4mm 0 0.8mm;
+  font: 600 9pt "Plex Mono";
+  break-after: avoid;
+}
+div.variablelist dt .term code { background: none; padding: 0; font-size: 1em; }
+div.variablelist dd { margin: 0 0 0 6mm; }
+div.variablelist dd p { margin: 0 0 1.6mm; }
+
+/* code and trees */
+pre.programlisting, pre.screen, pre.literallayout {
+  margin: 1mm 0 5mm;
+  padding: 4mm 5mm;
+  background: var(--panel);
+  border-left: 1.2pt solid var(--accent);
+  font: 400 7.6pt/1.5 "Plex Mono";
+  white-space: pre;
+  break-inside: avoid;
+  overflow: hidden;
+}
+
+/* tables */
+div.informaltable, div.table { margin: 2mm 0 5mm; break-inside: avoid; }
+div.table p.title { margin: 0 0 2mm; font: 600 9pt "Plex Serif"; }
+table { width: 100%; border-collapse: collapse; font-size: 8.8pt; line-height: 1.45; }
+table th, table td { padding: 1.8mm 2.4mm; text-align: left; vertical-align: top; border: none; border-bottom: 0.5pt solid var(--rule); }
+table thead th {
+  border-bottom: 1pt solid var(--ink);
+  font: 600 7.6pt "Plex Mono";
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+table td code.filename, table td code.literal { background: none; padding: 0; }
+table td p { margin: 0; }
+
+/* notes */
+div.note, div.important, div.tip, div.warning, div.caution {
+  margin: 3mm 0 5mm !important;
+  padding: 3.5mm 4.5mm;
+  background: var(--panel);
+  border-left: 1.2pt solid var(--accent);
+  break-inside: avoid;
+}
+div.important { border-left-color: #a35d00; }
+div.note h3.title, div.important h3.title, div.tip h3.title, div.warning h3.title, div.caution h3.title {
+  margin: 0 0 1.6mm;
+  font: 600 7.6pt "Plex Mono";
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+div.important h3.title { color: #a35d00; }
+div.note p:last-child, div.important p:last-child { margin-bottom: 0; }
+
+/* cross references keep the reader's place */
+a.xref { color: var(--accent); }

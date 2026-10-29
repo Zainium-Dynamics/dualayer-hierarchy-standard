@@ -7,6 +7,11 @@ XMLLINT  = xmllint
 WEASYPRINT = weasyprint
 PYTHON3  = python3
 
+# The PDF names the commit it was built from and that commit's date, so the same
+# source gives the same document.
+BUILD_COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null)
+BUILD_DATE   ?= $(shell git log -1 --format=%cs 2>/dev/null)
+
 BUILDDIR = build
 OUTDIR   = build/dhs
 XMLBOOK  = xml/dhs.xml
@@ -44,8 +49,22 @@ $(OUTDIR)/%/dhs.css: docbook/dhs.css
 	mkdir -p $(@D)
 	cp $< $@
 
-# The PDF is the single-page HTML printed with WeasyPrint, so it keeps the same design.
-$(OUTDIR)/dhs.pdf: $(OUTDIR)/single/index.html $(OUTDIR)/single/dhs.css
+# The PDF edition: single-page HTML with a cover (docbook/dhs-print.xsl), printed by
+# WeasyPrint with its own stylesheet, fonts and logos (docbook/print/).
+PRINTFILES = $(wildcard docbook/print/*.css docbook/print/*.png docbook/print/fonts/*)
+
+$(OUTDIR)/print/index.html: $(XMLFILES) docbook/dhs-print.xsl $(DOCBOOK_XSL_SHTML)
+	mkdir -p $(@D)
+	$(XSLTPROC) --xinclude \
+	    --stringparam section.autolabel 1 \
+	    --stringparam section.label.includes.component.label 1 \
+	    --stringparam generate.toc "book toc,title" \
+	    --stringparam build.commit "$(BUILD_COMMIT)" \
+	    --stringparam build.date "$(BUILD_DATE)" \
+	    -o $@ docbook/dhs-print.xsl $(XMLBOOK)
+
+$(OUTDIR)/dhs.pdf: $(OUTDIR)/print/index.html $(PRINTFILES)
+	cp -r docbook/print/. $(OUTDIR)/print/
 	$(WEASYPRINT) $< $@
 
 # Validate every source file against the DocBook 5 RELAX NG schema.
