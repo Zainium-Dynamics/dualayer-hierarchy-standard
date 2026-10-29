@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The userland layer has no `var` of its own: variable data of installed software (for example a system-wide Flatpak installation) lives in `union/var`, used by its path under the userland when its storage cannot live on OverlayFS.
+
 ## 1.0 — 2026-10-28
 
 First version of the Dualayer Hierarchy Standard.

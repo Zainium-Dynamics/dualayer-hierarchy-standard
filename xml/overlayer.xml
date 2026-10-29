@@ -25,10 +25,10 @@ library.</para>
 │       └── hardware/firmwares/  device firmware
 ├── userland/                    userland layer: software the user installs
 │   ├── union/                   files of installed packages
+│   │   ├── var/                 variable data of installed software
 │   │   └── <replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-gnu/   secondary C library, when installed here
 │   ├── work/                    OverlayFS work directory
-│   ├── registry/                package receipts, index, caches, keys
-│   └── var/                     package data kept outside the union
+│   └── registry/                package receipts, index, caches, keys
 ├── ignition/                    ignition layer (read-only)
 │   ├── kernel/                  kernels and initramfs images
 │   └── <replaceable>bootloader</replaceable>/            boot loader files
@@ -148,7 +148,13 @@ system layer (<filename>bin</filename>, <filename>lib</filename>,
 <filename>etc</filename>, <filename>share</filename>, …). This directory is
 the upper layer of the system view, so its files appear in
 <filename>/overlayer/syshub</filename>. A secondary C library installed as a
-package lives in its triplet directory here (<xref linkend="libc"/>).</para></listitem></varlistentry>
+package lives in its triplet directory here (<xref linkend="libc"/>).</para>
+<para><filename>union/var</filename> holds the variable data of installed
+software, for example a system-wide Flatpak installation in
+<filename>union/var/lib/flatpak</filename>. Software whose storage cannot live
+on OverlayFS, such as an OSTree repository,
+<emphasis role="strong">MUST</emphasis> use it by its path under the userland
+layer, not through the system view.</para></listitem></varlistentry>
 
 <varlistentry><term><filename>work</filename></term>
 <listitem><para>The OverlayFS work directory belonging to
@@ -160,10 +166,6 @@ the same filesystem as <filename>union</filename> and
 <listitem><para>One receipt per installed package listing every file it
 installed, the package index, download caches and trusted signing
 keys.</para></listitem></varlistentry>
-
-<varlistentry><term><filename>var</filename></term>
-<listitem><para>Package data that must stay outside the composed view, for
-example a system-wide Flatpak installation.</para></listitem></varlistentry>
 </variablelist>
 </section>
 
