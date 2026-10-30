@@ -1,0 +1,130 @@
+Dualayer Hierarchy Standard (DHS)
+=================================
+
+A layered filesystem hierarchy in which musl and GNU libc run side by side.
+
+DHS defines where the files of an operating system live when the system is
+assembled from layers (a self-sufficient base, a layer of installed
+software and a boot layer), and how two C libraries, musl and glibc, are
+installed on the same system without conflicting. "Dualayer" is dual (two
+C libraries) and layer (a system built from layers).
+
+  Version          1.0 (October 2026)
+  PDF              https://github.com/Zainium-Dynamics/dualayer-hierarchy-standard/releases/download/latest/dualayer-hierarchy-standard.pdf
+  Reference        Zainium OS
+  License          CC BY-SA 4.0 (see LICENSE)
+
+
+Why
+---
+
+The Filesystem Hierarchy Standard describes one shared tree: the vendor's
+software and the user's software both go into /usr, and one C library
+serves every program. That makes three things hard: keeping what the
+vendor ships apart from what the user installs, upgrading the base as one
+unit instead of file by file while it runs, and having a second C library,
+because /lib, /lib64, /usr/include and the loader path assume there is
+only one.
+
+DHS gives every part of the system its own layer with a single owner,
+composes the layers into one view at boot with OverlayFS, and gives each
+C library a directory of its own.
+
+
+The layout
+----------
+
+  /
+  ├── overlayer/
+  │   ├── syshub/        system layer: the base (the composed view at run time)
+  │   │   ├── bin/ sbin/ libexec/ lib/ include/ share/ etc/ var/
+  │   │   ├── <arch>-<vendor>-linux-musl/   primary C library
+  │   │   └── drivers/   kernel modules and firmware
+  │   ├── userland/      software the user installs
+  │   │   ├── union/     files of installed packages (the upper layer)
+  │   │   │   ├── var/   variable data of installed software
+  │   │   │   └── <arch>-<vendor>-linux-gnu/   secondary C library
+  │   │   └── work/  registry/
+  │   ├── ignition/      kernels, initramfs, boot loader (read-only)
+  │   ├── agents/        instructions for AI agents (optional)
+  │   └── .syshub-pending/   a staged base upgrade
+  ├── home/  root/  tmp/  run/  dev/  proc/  sys/
+  └── var -> /overlayer/syshub/var
+
+There is no /usr, /bin, /sbin, /lib, /lib64, /etc or /boot at the root,
+not even as symbolic links.
+
+  Layer        DHS name              Changed by                 Zainium OS
+  System       /overlayer/syshub     base upgrades, at boot     syshub
+  Userland     /overlayer/userland   the package manager        zexlib
+  Ignition     /overlayer/ignition   upgrades, the installer    zaisys
+
+A distribution may give the userland and ignition layers names of its own,
+as long as the structure inside them is unchanged and the names are
+documented in /overlayer. At boot the initramfs applies a staged base
+upgrade, then mounts the system view at /overlayer/syshub with the system
+layer below and the userland above. Every file on disk belongs to exactly
+one layer, and deleting the userland leaves a base that still boots.
+
+
+musl and glibc side by side
+---------------------------
+
+Every distribution chooses its primary C library, the one the base is
+built against; the other one is the optional secondary. Each lives in a
+directory named after its target triplet. Design A is musl primary (Zainium
+OS, with glibc as a userland package), design B is glibc primary.
+
+  - The shared bin, lib and include belong to the primary C library.
+  - Every program names the loader of the C library it was linked against.
+  - The secondary loader searches only its own lib, never the shared one.
+  - Both read users, hosts, DNS and the time zone from /overlayer/syshub/etc.
+  - Unprefixed compilers belong to the primary; the secondary's compiler
+    has its triplet name and its own pkg-config path.
+
+So there are no two loaders competing for /lib and /lib64, no headers of
+one library compiled against the other's libc, and no program loading a
+library built for the other. Binaries that ask for /lib64/ld-linux-x86-64.so.2
+or /lib/ld-musl-x86_64.so.1 are started through the installed loader of the
+same C library.
+
+
+Software built for FHS systems
+------------------------------
+
+Scripts with #!/usr/bin/env, programs that open /etc/passwd and binaries
+from other distributions keep working: FHS paths that do not exist are
+resolved to their DHS place when they are used, and packages from other
+distributions are adapted when they are installed.
+
+
+Reading and building
+--------------------
+
+The standard is DocBook 5 in xml/, one file per chapter: intro, principles,
+root, overlayer, composition, libc, compat, packages and appendix.
+
+  make valid      validate against the DocBook 5 schema
+  make html       one page per chapter, build/dhs/html/
+  make single     one page, build/dhs/single/index.html
+  make pdf        the print edition, build/dhs/dhs.pdf (needs WeasyPrint)
+
+It needs make, xsltproc and xmllint; the schemas, stylesheets, fonts and
+logos are in docbook/. CI builds the HTML and the PDF for every change
+(artifact "dhs") and publishes the PDF of main on the "latest" release.
+
+
+Implementations
+---------------
+
+  Zainium OS      reference implementation
+
+To list another, open an issue or a pull request. See CONTRIBUTING.md.
+
+
+Credits
+-------
+
+DHS builds on the Filesystem Hierarchy Standard, maintained by
+freedesktop.org, and its build system is derived from the FHS project's;
+see Attributions.
