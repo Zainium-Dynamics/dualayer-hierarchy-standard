@@ -111,7 +111,7 @@ here (<xref linkend="libc-shared-config"/>).</para></listitem></varlistentry>
 
 <varlistentry><term><filename>var</filename></term>
 <listitem><para>Variable data of base services: logs, caches, spool, the
-state of the service manager. <filename>/var</filename> points here.</para></listitem></varlistentry>
+state of the service manager.</para></listitem></varlistentry>
 
 <varlistentry><term><filename><replaceable>arch</replaceable>-<replaceable>vendor</replaceable>-linux-<replaceable>libc</replaceable></filename></term>
 <listitem><para>The primary C library with its loader, headers and

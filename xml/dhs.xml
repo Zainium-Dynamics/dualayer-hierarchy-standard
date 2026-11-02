@@ -8,8 +8,8 @@
 <info>
 <title>Dualayer Hierarchy Standard</title>
 <subtitle>A layered filesystem hierarchy in which musl and GNU libc run side by side</subtitle>
-<releaseinfo>Version 1.0</releaseinfo>
-<pubdate>October 28, 2026</pubdate>
+<releaseinfo>Version 1.1</releaseinfo>
+<pubdate>November 2, 2026</pubdate>
 
 <authorgroup>
   <author><orgname>Dualayer Hierarchy Standard Project</orgname></author>

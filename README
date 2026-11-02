@@ -9,7 +9,7 @@ software and a boot layer), and how two C libraries, musl and glibc, are
 installed on the same system without conflicting. "Dualayer" is dual (two
 C libraries) and layer (a system built from layers).
 
-  Version          1.0 (October 2026)
+  Version          1.1 (November 2026)
   PDF              https://github.com/Zainium-Dynamics/dualayer-hierarchy-standard/releases/download/latest/dualayer-hierarchy-standard.pdf
   Reference        Zainium OS
   License          CC BY-SA 4.0 (see LICENSE)
@@ -48,10 +48,9 @@ The layout
   │   ├── ignition/      kernels, initramfs, boot loader (read-only)
   │   ├── agents/        instructions for AI agents (optional)
   │   └── .syshub-pending/   a staged base upgrade
-  ├── home/  root/  tmp/  run/  dev/  proc/  sys/
-  └── var -> /overlayer/syshub/var
+  └── home/  root/  tmp/  run/  dev/  proc/  sys/
 
-There is no /usr, /bin, /sbin, /lib, /lib64, /etc or /boot at the root,
+There is no /usr, /bin, /sbin, /lib, /lib64, /etc, /var or /boot at the root,
 not even as symbolic links.
 
   Layer        DHS name              Changed by                 Zainium OS

@@ -45,7 +45,7 @@ libraries never share a <filename>lib</filename> or
 <varlistentry>
 <term>No compatibility directories at the root</term>
 <listitem><para>There is no <filename>/usr</filename>,
-<filename>/lib64</filename> or <filename>/bin</filename>, not even as a
+<filename>/lib64</filename>, <filename>/bin</filename> or <filename>/var</filename>, not even as a
 symbolic link. Software that names those paths is served by path
 resolution at run time instead.</para></listitem>
 </varlistentry>

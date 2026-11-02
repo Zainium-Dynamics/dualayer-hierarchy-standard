@@ -22,7 +22,6 @@ contain others.</para>
 <row><entry><filename>/sys</filename></entry><entry>Kernel and device information (sysfs).</entry></row>
 <row><entry><filename>/run</filename></entry><entry>Run-time state since boot (tmpfs).</entry></row>
 <row><entry><filename>/tmp</filename></entry><entry>Temporary files.</entry></row>
-<row><entry><filename>/var</filename></entry><entry>A symbolic link to <filename>/overlayer/syshub/var</filename>, kept because the kernel interfaces and service managers of today expect <filename>/var</filename> to exist. It is the only symbolic link at the root.</entry></row>
 </tbody>
 </tgroup>
 </informaltable>
@@ -35,7 +34,7 @@ contain others.</para>
 exist at the root, neither as directories nor as symbolic links:
 <filename>/usr</filename>, <filename>/bin</filename>, <filename>/sbin</filename>,
 <filename>/lib</filename>, <filename>/lib32</filename>, <filename>/lib64</filename>,
-<filename>/libx32</filename>, <filename>/etc</filename> and <filename>/boot</filename>.
+<filename>/libx32</filename>, <filename>/etc</filename>, <filename>/var</filename> and <filename>/boot</filename>.
 Their contents live in the layers; <xref linkend="fhs-map"/> lists where.</para>
 
 <para>Keeping these names absent is what makes the layers enforceable: a

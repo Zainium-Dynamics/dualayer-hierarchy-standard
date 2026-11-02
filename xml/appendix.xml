@@ -18,7 +18,7 @@
 <row><entry><filename>/usr/include</filename></entry><entry><filename>/overlayer/syshub/include</filename></entry></row>
 <row><entry><filename>/usr/share</filename></entry><entry><filename>/overlayer/syshub/share</filename></entry></row>
 <row><entry><filename>/etc</filename></entry><entry><filename>/overlayer/syshub/etc</filename></entry></row>
-<row><entry><filename>/var</filename></entry><entry><filename>/overlayer/syshub/var</filename> (<filename>/var</filename> remains as a link)</entry></row>
+<row><entry><filename>/var</filename></entry><entry><filename>/overlayer/syshub/var</filename></entry></row>
 <row><entry><filename>/boot</filename></entry><entry><filename>/overlayer/ignition/kernel</filename> and the boot loader directory</entry></row>
 <row><entry><filename>/lib/modules</filename></entry><entry><filename>/overlayer/syshub/drivers/modules</filename></entry></row>
 <row><entry><filename>/lib/firmware</filename></entry><entry><filename>/overlayer/syshub/drivers/hardware/firmwares</filename></entry></row>

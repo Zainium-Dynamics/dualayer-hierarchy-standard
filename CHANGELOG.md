@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.1 — 2026-11-02
 
+- `/var` is no longer a symbolic link at the root: it MUST NOT exist there, like `/etc`. Variable data of base services lives in `/overlayer/syshub/var`.
 - The userland layer has no `var` of its own: variable data of installed software (for example a system-wide Flatpak installation) lives in `union/var`, used by its path under the userland when its storage cannot live on OverlayFS.
 
 ## 1.0 — 2026-10-28
