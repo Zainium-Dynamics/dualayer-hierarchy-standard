@@ -27,6 +27,29 @@ contain others.</para>
 </informaltable>
 </section>
 
+<section xml:id="root-media">
+<title>Removable media</title>
+
+<para>Removable media, such as USB drives and memory cards, are mounted in
+<filename>/run/media/<replaceable>user</replaceable>/<replaceable>label</replaceable></filename>,
+where <replaceable>user</replaceable> is the user who mounted the medium and
+<replaceable>label</replaceable> is the label of its filesystem, or its UUID
+when it has no label. For example, a USB drive labelled
+<literal>ZAINIUM_DRIVE</literal> that the user <literal>alizain</literal>
+plugs in is found at
+<filename>/run/media/alizain/ZAINIUM_DRIVE</filename>.</para>
+
+<para>The directory <filename>/run/media/<replaceable>user</replaceable></filename>
+<emphasis role="strong">SHOULD</emphasis> be readable only by that user and
+by root. Removable media <emphasis role="strong">MUST NOT</emphasis> be
+mounted inside <filename>/overlayer</filename>: they belong to no layer, and
+a medium mounted there could hide or replace files of the system.
+<filename>/media</filename> is not used.</para>
+
+<para>This is the place where udisks mounts media on most Linux systems, so
+desktop file managers and their users find them where they expect.</para>
+</section>
+
 <section xml:id="root-forbidden">
 <title>Entries that must not exist</title>
 

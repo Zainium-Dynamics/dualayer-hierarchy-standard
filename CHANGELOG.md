@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Removable media are mounted in `/run/media/<user>/<label>`, never inside `/overlayer`; `/media` is not used. The FHS map lists `/media` there.
+
 ## 1.1 — 2026-11-02
 
 - `/var` is no longer a symbolic link at the root: it MUST NOT exist there, like `/etc`. Variable data of base services lives in `/overlayer/syshub/var`.

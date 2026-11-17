@@ -25,13 +25,13 @@
 <row><entry><filename>/usr/local</filename>, <filename>/opt</filename></entry><entry><filename>/overlayer/userland/union</filename> (installed software, through the package manager)</entry></row>
 <row><entry>Loader in <filename>/lib</filename> or <filename>/lib64</filename></entry><entry>the C library's triplet directory (<xref linkend="libc-dirs"/>)</entry></row>
 <row><entry><filename>/home</filename>, <filename>/root</filename>, <filename>/tmp</filename>, <filename>/run</filename>, <filename>/dev</filename>, <filename>/proc</filename>, <filename>/sys</filename></entry><entry>unchanged</entry></row>
+<row><entry><filename>/media</filename></entry><entry><filename>/run/media/<replaceable>user</replaceable>/<replaceable>label</replaceable></filename> (<xref linkend="root-media"/>)</entry></row>
 </tbody>
 </tgroup>
 </informaltable>
 
-<para><filename>/srv</filename>, <filename>/mnt</filename> and
-<filename>/media</filename> are not defined by this version of the
-standard.</para>
+<para><filename>/srv</filename> and <filename>/mnt</filename> are not
+defined by this version of the standard.</para>
 </section>
 
 <section xml:id="reference-implementation">
