@@ -45,33 +45,24 @@
   </xsl:variable>
 
   <div class="cover">
-    <div class="cover-brand">
-      <img class="cover-logo" src="zainium-logo.png" alt="Zainium Dynamics"/>
-      <span class="cover-org">Zainium Dynamics</span>
-    </div>
+    <p class="cover-org"><img src="zainium-mark.png" alt=""/> Zainium Dynamics</p>
     <div class="cover-main">
-      <p class="cover-kind">Open specification</p>
       <p class="cover-title"><xsl:value-of select="$info/*[local-name() = 'title']"/></p>
       <p class="cover-subtitle"><xsl:value-of select="$info/*[local-name() = 'subtitle']"/></p>
+      <p class="cover-version">Version <xsl:value-of select="$version"/></p>
+      <p class="cover-date"><xsl:value-of select="$info/*[local-name() = 'pubdate']"/></p>
     </div>
-    <table class="cover-meta">
-      <tr><th>Version</th><td><xsl:value-of select="$version"/></td></tr>
-      <tr><th>Published</th><td><xsl:value-of select="$info/*[local-name() = 'pubdate']"/></td></tr>
-      <xsl:if test="$build.commit != ''">
-        <tr><th>Build</th><td><xsl:value-of select="$build.date"/> · <xsl:value-of select="$build.commit"/></td></tr>
-      </xsl:if>
-      <tr><th>License</th><td>CC BY-SA 4.0</td></tr>
-    </table>
     <div class="cover-foot">
-      <span>zainiumdynamics.tech/dhs</span>
-      <span>github.com/Zainium-Dynamics/dualayer-hierarchy-standard</span>
+      <p>Published under the Creative Commons Attribution-ShareAlike 4.0 International license.</p>
+      <p>https://zainiumdynamics.tech/dhs<br/>https://github.com/Zainium-Dynamics/dualayer-hierarchy-standard</p>
+      <xsl:if test="$build.commit != ''">
+        <p class="cover-build">Built <xsl:value-of select="$build.date"/> from commit <xsl:value-of select="$build.commit"/></p>
+      </xsl:if>
     </div>
   </div>
 
   <div class="running-header">
-    <img src="zainium-mark.png" alt=""/>
-    <span class="running-title"><xsl:value-of select="$info/*[local-name() = 'title']"/></span>
-    <span class="running-version"><xsl:value-of select="$version"/></span>
+    <xsl:value-of select="$info/*[local-name() = 'title']"/>, version <xsl:value-of select="$version"/>
   </div>
 </xsl:template>
 
