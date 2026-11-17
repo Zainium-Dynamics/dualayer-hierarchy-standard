@@ -59,7 +59,7 @@ body {
   font-size: 11pt;
   line-height: 1.4;
   hyphens: manual;
-  text-align: justify;
+  text-align: left;
 }
 
 /* ── Title page ────────────────────────────────────────────────────────── */
@@ -179,9 +179,9 @@ div.variablelist dd p { margin: 0 0 1.5mm; }
 
 /* code and trees */
 pre.programlisting, pre.screen, pre.literallayout {
-  margin: 1mm 0 4mm 7mm;
+  margin: 1mm 0 4mm 0;
   padding: 0;
-  font: 400 8.6pt/1.35 "Liberation Mono";
+  font: 400 7.9pt/1.35 "Liberation Mono";
   text-align: left;
   white-space: pre;
   break-inside: avoid;
